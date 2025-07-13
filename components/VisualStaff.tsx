@@ -117,17 +117,17 @@ const VisualStaff: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <h1 className="text-5xl font-bold text-white mb-4">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
           Lever Ward Legends
         </h1>
-        <p className="text-xl text-hospital-mint">
+        <p className="text-lg sm:text-xl text-hospital-mint">
           The people who made our placement unforgettable
         </p>
       </motion.div>
 
       {/* Staff Cards */}
-      <div className="max-w-6xl mx-auto px-8 pb-20 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pb-20 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {staff.map((member, index) => (
             <motion.div
               key={index}
@@ -139,7 +139,7 @@ const VisualStaff: React.FC = () => {
               onHoverEnd={() => setHoveredCard(null)}
             >
               <motion.div
-                className="bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-2xl p-8 border border-gray-800 overflow-hidden"
+                className="bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-gray-800 overflow-hidden"
                 whileHover={{ scale: 1.02 }}
                 animate={hoveredCard === index ? member.animation : {}}
               >
@@ -232,7 +232,7 @@ const VisualStaff: React.FC = () => {
                     </div>
                   </div>
 
-                  <h3 className="text-2xl font-bold text-white mb-1">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">
                     {member.title}
                   </h3>
                   <p className="text-sm font-medium mb-4" style={{ color: member.color }}>
@@ -282,7 +282,7 @@ const VisualStaff: React.FC = () => {
       </div>
 
       {/* Bottom decoration */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden">
+      <div className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden hidden md:block">
         <motion.div
           className="absolute bottom-0 left-1/2 -translate-x-1/2"
           initial={{ y: 100 }}

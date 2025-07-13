@@ -156,7 +156,7 @@ export default function VisualFinale() {
             <div className="text-center max-w-4xl">
               {/* Thank you message */}
               <motion.h1
-                className="text-6xl md:text-8xl font-bold text-white mb-8"
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold text-white mb-6 sm:mb-8 px-4"
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ 
@@ -189,9 +189,9 @@ export default function VisualFinale() {
                 animate={{ scale: 1 }}
                 transition={{ delay: 1, duration: 1 }}
               >
-                <div className="text-6xl">🏥</div>
-                <Heart className="w-16 h-16 text-red-500 fill-red-500 animate-pulse" />
-                <div className="text-6xl">🎓</div>
+                <div className="text-4xl sm:text-5xl md:text-6xl">🏥</div>
+                <Heart className="w-12 h-12 sm:w-16 sm:h-16 text-red-500 fill-red-500 animate-pulse" />
+                <div className="text-4xl sm:text-5xl md:text-6xl">🎓</div>
               </motion.div>
 
               {/* Names */}
@@ -222,7 +222,7 @@ export default function VisualFinale() {
                 transition={{ delay: 2.5 }}
                 className="relative"
               >
-                <div className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-bold text-xl rounded-full shadow-2xl">
+                <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-bold text-base sm:text-xl rounded-full shadow-2xl">
                   <Star className="w-6 h-6 fill-yellow-300 text-yellow-300" />
                   <span>Balmain Hospital 2025</span>
                   <Star className="w-6 h-6 fill-yellow-300 text-yellow-300" />
@@ -334,7 +334,7 @@ export default function VisualFinale() {
                   scale: [1, 1.1, 1]
                 }}
                 transition={{ duration: 2, repeat: Infinity }}
-                className="text-6xl mb-4"
+                className="text-5xl sm:text-6xl mb-4"
               >
                 🎉
               </motion.div>
@@ -344,7 +344,7 @@ export default function VisualFinale() {
               <p className="text-white mb-4">
                 This farewell site was lovingly coded by
               </p>
-              <p className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-hospital-mint to-hospital-coral mb-4">
+              <p className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-hospital-mint to-hospital-coral mb-4">
                 Nathan Xu
               </p>
               <p className="text-gray-400 text-sm mb-4">

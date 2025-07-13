@@ -22,10 +22,11 @@ export default function Navigation({
     <>
       {/* Mobile Menu Button */}
       <motion.button
-        className="fixed top-6 left-6 z-50 p-3 bg-hospital-dark/80 backdrop-blur-sm rounded-lg border border-hospital-mint/30"
+        className="fixed top-4 left-4 z-50 p-3 bg-hospital-dark/90 backdrop-blur-sm rounded-lg border border-hospital-mint/30 md:top-6 md:left-6"
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
+        aria-label="Menu"
       >
         <div className="w-6 h-5 flex flex-col justify-between">
           <motion.span 
@@ -58,7 +59,7 @@ export default function Navigation({
               animate={{ x: 0 }}
               exit={{ x: -300 }}
               transition={{ type: "spring", damping: 20 }}
-              className="absolute left-0 top-0 h-full w-80 bg-hospital-dark/95 p-8 pt-24"
+              className="absolute left-0 top-0 h-full w-full sm:w-80 bg-hospital-dark/95 p-6 pt-20 sm:p-8 sm:pt-24"
               onClick={(e) => e.stopPropagation()}
             >
               <h2 className="text-2xl font-bold text-hospital-mint mb-8">Navigation</h2>
@@ -86,7 +87,8 @@ export default function Navigation({
 
               <div className="absolute bottom-8 left-8 right-8">
                 <p className="text-white/50 text-sm">
-                  Use arrow keys or scroll to navigate
+                  <span className="hidden sm:inline">Use arrow keys or scroll to navigate</span>
+                  <span className="sm:hidden">Swipe to navigate</span>
                 </p>
               </div>
             </motion.div>
@@ -103,9 +105,9 @@ export default function Navigation({
         />
       </div>
 
-      {/* Section Indicator */}
+      {/* Section Indicator - Hidden on mobile */}
       <motion.div
-        className="fixed top-6 right-6 bg-hospital-dark/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-hospital-mint/30 z-30"
+        className="hidden md:block fixed top-6 right-6 bg-hospital-dark/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-hospital-mint/30 z-30"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
@@ -131,17 +133,17 @@ export default function Navigation({
               aria-label={`Go to ${section}`}
             />
             
-            {/* Tooltip */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-hospital-dark/90 text-white text-xs px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            {/* Tooltip - Desktop only */}
+            <div className="hidden md:block absolute bottom-8 left-1/2 -translate-x-1/2 bg-hospital-dark/90 text-white text-xs px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
               {section}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Keyboard Instructions */}
+      {/* Keyboard Instructions - Desktop only */}
       <motion.div
-        className="fixed bottom-8 right-8 bg-hospital-dark/80 backdrop-blur-sm px-4 py-2 rounded-lg text-white/70 text-sm z-30"
+        className="hidden lg:block fixed bottom-8 right-8 bg-hospital-dark/80 backdrop-blur-sm px-4 py-2 rounded-lg text-white/70 text-sm z-30"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2 }}

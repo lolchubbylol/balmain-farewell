@@ -53,6 +53,8 @@ export default function Home() {
   const [currentSection, setCurrentSection] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [autoPlay, setAutoPlay] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const sections = [
@@ -121,6 +123,31 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [currentSection, autoPlay, sections.length, handleSectionChange]);
 
+  // Touch/swipe navigation for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      handleSectionChange((currentSection + 1) % sections.length);
+    }
+    if (isRightSwipe) {
+      handleSectionChange((currentSection - 1 + sections.length) % sections.length);
+    }
+  };
+
   // Auto-progression
   useEffect(() => {
     if (!autoPlay) return;
@@ -139,12 +166,11 @@ export default function Home() {
     return () => clearInterval(timer);
   }, [autoPlay, currentSection, sections]);
 
-  // Initial loading and auto-start
+  // Initial loading (no auto-start)
   useEffect(() => {
     setTimeout(() => {
       setIsLoading(false);
-      // Auto-start the journey
-      setAutoPlay(true);
+      // Don't auto-start - let user control navigation
     }, 1500);
   }, []);
 

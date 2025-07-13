@@ -367,9 +367,9 @@ export default function VisualHero() {
             animate={{ opacity: 1 }}
             className="relative z-20 flex items-center justify-center h-full"
           >
-            <div className="text-center">
+            <div className="text-center px-4">
               <motion.h1
-                className="text-6xl md:text-8xl font-bold text-hospital-mint mb-8"
+                className="text-5xl sm:text-6xl md:text-8xl font-bold text-hospital-mint mb-6 sm:mb-8 px-4"
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ 
@@ -396,17 +396,17 @@ export default function VisualHero() {
                 transition={{ delay: 0.5, duration: 1 }}
                 className="space-y-4"
               >
-                <p className="text-2xl md:text-3xl text-hospital-coral">
+                <p className="text-xl sm:text-2xl md:text-3xl text-hospital-coral">
                   Balmain Hospital Lever Ward
                 </p>
-                <p className="text-xl text-hospital-mint/80">
+                <p className="text-lg sm:text-xl text-hospital-mint/80">
                   UNIVERSITY OF SYDNEY • Class of 2025
                 </p>
               </motion.div>
 
               {/* Complex geometric pattern instead of simple koala */}
               <motion.div
-                className="absolute -bottom-20 right-10"
+                className="absolute -bottom-20 right-10 hidden sm:block"
                 initial={{ scale: 0, rotate: -90 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 1.5, duration: 2, type: "spring" }}

@@ -113,10 +113,10 @@ const VisualSignatures: React.FC = () => {
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className="text-5xl font-bold text-white mb-4">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
           The Survivors
         </h1>
-        <p className="text-xl text-hospital-mint mb-2">
+        <p className="text-lg sm:text-xl text-hospital-mint mb-2">
           University of Sydney • Class of 2025
         </p>
         <p className="text-sm text-gray-500">
@@ -125,8 +125,8 @@ const VisualSignatures: React.FC = () => {
       </motion.div>
 
       {/* Student Cards */}
-      <div className="max-w-6xl mx-auto px-8 pb-20 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pb-20 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {students.map((student, index) => (
             <motion.div
               key={student.name}
@@ -136,13 +136,13 @@ const VisualSignatures: React.FC = () => {
               transition={{ delay: index * 0.2 }}
             >
               <motion.div
-                className="bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-800"
+                className="bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-gray-800"
                 whileHover={{ scale: 1.02, rotate: [-1, 1, -1] }}
                 transition={{ rotate: { duration: 0.5 } }}
               >
                 {/* Student info */}
                 <div className="mb-4">
-                  <h3 className="text-2xl font-bold text-white">{student.name}</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white">{student.name}</h3>
                   <p className="text-sm text-gray-400">{student.subtitle}</p>
                 </div>
 
@@ -217,7 +217,7 @@ const VisualSignatures: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5 }}
         >
-          <p className="text-lg text-white mb-2">
+          <p className="text-base sm:text-lg text-white mb-2">
             Thanks for putting up with us
           </p>
           <p className="text-sm text-gray-500">
