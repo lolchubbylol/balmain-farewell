@@ -1,18 +1,50 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import HeroEKG from '@/components/HeroEKG';
-import StudentSignatures from '@/components/StudentSignatures';
-import GrandFinale from '@/components/GrandFinale';
+import Navigation from '@/components/Navigation';
 
-// Dynamic import for Three.js component to avoid SSR issues
-const Staff3DCards = dynamic(() => import('@/components/Staff3DCards'), {
+// Dynamic imports
+const VisualHero = dynamic(() => import('@/components/VisualHero'), {
   ssr: false,
   loading: () => (
     <div className="h-screen flex items-center justify-center bg-black">
-      <div className="text-hospital-mint text-2xl animate-pulse">Loading 3D Experience...</div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="text-center"
+      >
+        <div className="text-hospital-mint text-4xl mb-4">❤️</div>
+        <div className="text-white text-xl">Loading Experience...</div>
+      </motion.div>
+    </div>
+  )
+});
+
+const VisualStaff = dynamic(() => import('@/components/VisualStaff'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-screen flex items-center justify-center bg-black">
+      <div className="text-hospital-mint text-2xl animate-pulse">Preparing Staff Cards...</div>
+    </div>
+  )
+});
+
+const VisualSignatures = dynamic(() => import('@/components/VisualSignatures'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-screen flex items-center justify-center bg-black">
+      <div className="text-hospital-mint text-2xl animate-pulse">Loading Signatures...</div>
+    </div>
+  )
+});
+
+const VisualFinale = dynamic(() => import('@/components/VisualFinale'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-screen flex items-center justify-center bg-black">
+      <div className="text-hospital-mint text-2xl animate-pulse">Preparing Finale...</div>
     </div>
   )
 });
@@ -20,32 +52,158 @@ const Staff3DCards = dynamic(() => import('@/components/Staff3DCards'), {
 export default function Home() {
   const [currentSection, setCurrentSection] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate loading time
-    setTimeout(() => setIsLoading(false), 1000);
-
-    // Auto-progress through sections
-    const timer = setInterval(() => {
-      setCurrentSection((prev) => {
-        if (prev < 3) return prev + 1;
-        return prev;
-      });
-    }, 8000); // 8 seconds per section
-
-    return () => clearInterval(timer);
-  }, []);
+  const [autoPlay, setAutoPlay] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const sections = [
-    { component: <HeroEKG />, duration: 8000 },
-    { component: <Staff3DCards />, duration: 8000 },
-    { component: <StudentSignatures />, duration: 8000 },
-    { component: <GrandFinale />, duration: 8000 }
+    { 
+      component: <VisualHero />, 
+      name: "Welcome",
+      duration: 8000 
+    },
+    { 
+      component: <VisualStaff />, 
+      name: "Our Mentors",
+      duration: 15000 
+    },
+    { 
+      component: <VisualSignatures />, 
+      name: "Signatures",
+      duration: 10000 
+    },
+    { 
+      component: <VisualFinale />, 
+      name: "Thank You",
+      duration: 10000 
+    }
   ];
 
-  const handleSectionChange = (index: number) => {
-    setCurrentSection(index);
-  };
+  // Handle section change
+  const handleSectionChange = useCallback((index: number) => {
+    if (index >= 0 && index < sections.length) {
+      setCurrentSection(index);
+      setAutoPlay(false); // Stop auto-play when manually navigating
+    }
+  }, [sections.length]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      switch(e.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          handleSectionChange((currentSection + 1) % sections.length);
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          handleSectionChange((currentSection - 1 + sections.length) % sections.length);
+          break;
+        case ' ':
+          e.preventDefault();
+          setAutoPlay(!autoPlay);
+          break;
+        case 'Escape':
+          setIsMenuOpen(false);
+          break;
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+          const num = parseInt(e.key) - 1;
+          if (num < sections.length) {
+            handleSectionChange(num);
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [currentSection, autoPlay, sections.length, handleSectionChange]);
+
+  // Auto-progression
+  useEffect(() => {
+    if (!autoPlay) return;
+
+    const timer = setInterval(() => {
+      setCurrentSection((prev) => {
+        const next = prev + 1;
+        if (next >= sections.length) {
+          setAutoPlay(false); // Stop at the end
+          return prev;
+        }
+        return next;
+      });
+    }, sections[currentSection].duration);
+
+    return () => clearInterval(timer);
+  }, [autoPlay, currentSection, sections]);
+
+  // Initial loading and auto-start
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+      // Auto-start the journey
+      setAutoPlay(true);
+    }, 1500);
+  }, []);
+
+  // Scroll/swipe handling
+  useEffect(() => {
+    let touchStartY = 0;
+    let touchStartX = 0;
+    const threshold = 50;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (isMenuOpen) return;
+      
+      if (e.deltaY > threshold) {
+        handleSectionChange((currentSection + 1) % sections.length);
+      } else if (e.deltaY < -threshold) {
+        handleSectionChange((currentSection - 1 + sections.length) % sections.length);
+      }
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (isMenuOpen) return;
+      
+      const touchEndY = e.changedTouches[0].clientY;
+      const touchEndX = e.changedTouches[0].clientX;
+      const deltaY = touchStartY - touchEndY;
+      const deltaX = touchStartX - touchEndX;
+
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        if (deltaY > threshold) {
+          handleSectionChange((currentSection + 1) % sections.length);
+        } else if (deltaY < -threshold) {
+          handleSectionChange((currentSection - 1 + sections.length) % sections.length);
+        }
+      }
+    };
+
+    // Debounced wheel handler
+    let wheelTimeout: NodeJS.Timeout;
+    const debouncedWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      clearTimeout(wheelTimeout);
+      wheelTimeout = setTimeout(() => handleWheel(e), 100);
+    };
+
+    window.addEventListener('wheel', debouncedWheel, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart);
+    window.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      window.removeEventListener('wheel', debouncedWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [currentSection, isMenuOpen, sections.length, handleSectionChange]);
 
   if (isLoading) {
     return (
@@ -56,8 +214,22 @@ export default function Home() {
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <div className="text-hospital-mint text-6xl mb-4 animate-pulse">❤️</div>
-          <div className="text-white text-xl">Preparing your experience...</div>
+          <motion.div 
+            className="text-hospital-mint text-6xl mb-4"
+            animate={{ 
+              scale: [1, 1.2, 1],
+              rotate: [0, 360, 0]
+            }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            ❤️
+          </motion.div>
+          <div className="text-white text-xl">Welcome to our farewell</div>
+          <div className="text-hospital-mint text-sm mt-2">Balmain Hospital Lever Ward</div>
         </motion.div>
       </div>
     );
@@ -65,71 +237,57 @@ export default function Home() {
 
   return (
     <main className="relative bg-black min-h-screen overflow-hidden">
+      {/* Navigation */}
+      <Navigation
+        sections={sections.map(s => s.name)}
+        currentSection={currentSection}
+        onSectionChange={handleSectionChange}
+        isMenuOpen={isMenuOpen}
+        setIsMenuOpen={setIsMenuOpen}
+      />
+
+      {/* Main Content */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSection}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.05 }}
+          transition={{ duration: 0.5 }}
           className="absolute inset-0"
         >
           {sections[currentSection].component}
         </motion.div>
       </AnimatePresence>
 
-      {/* Navigation dots */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-50">
-        {sections.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => handleSectionChange(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              currentSection === index 
-                ? 'bg-hospital-mint w-8' 
-                : 'bg-white/30 hover:bg-white/50'
-            }`}
-            aria-label={`Go to section ${index + 1}`}
-          />
-        ))}
-      </div>
-
-      {/* Skip intro button */}
-      {currentSection === 0 && (
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-          onClick={() => setCurrentSection(3)}
-          className="fixed top-8 right-8 text-white/50 hover:text-white transition-colors z-50"
+      {/* Auto-play indicator */}
+      {autoPlay && (
+        <motion.div
+          className="fixed top-20 left-1/2 -translate-x-1/2 bg-hospital-mint/20 text-hospital-mint px-4 py-2 rounded-full z-30"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
         >
-          Skip to finale →
-        </motion.button>
+          Auto-playing • Press space to stop
+        </motion.div>
       )}
 
-      {/* Background particles effect */}
-      <div className="fixed inset-0 pointer-events-none">
-        {[...Array(30)].map((_, i) => (
+      {/* Navigation hint (shows briefly at start) */}
+      <AnimatePresence>
+        {currentSection === 0 && (
           <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-hospital-mint/20 rounded-full"
-            initial={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
-            }}
-            animate={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
-            }}
-            transition={{
-              duration: 20 + Math.random() * 10,
-              repeat: Infinity,
-              repeatType: "reverse",
-              ease: "linear"
-            }}
-          />
-        ))}
-      </div>
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ delay: 3, duration: 1 }}
+          >
+            <p className="text-white/50 text-sm">
+              Use arrow keys or swipe to navigate
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

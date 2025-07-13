@@ -111,7 +111,7 @@ export default function HeroEKG() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 5, duration: 1 }}
         >
-          Balmain Hospital Geriatric Ward
+          Balmain Hospital Lever Ward
         </motion.p>
       </motion.div>
 
