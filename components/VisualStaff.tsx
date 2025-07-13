@@ -75,7 +75,7 @@ const VisualStaff: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-hospital-dark to-black relative overflow-hidden">
+    <div className="h-screen bg-gradient-to-b from-hospital-dark to-black relative overflow-hidden flex flex-col">
       {/* Subtle ambient glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/3 -left-32 w-96 h-96 bg-hospital-mint/10 rounded-full filter blur-3xl" />
@@ -89,8 +89,8 @@ const VisualStaff: React.FC = () => {
             key={i}
             className="absolute"
             initial={{ 
-              x: Math.random() * window.innerWidth,
-              y: window.innerHeight + 100,
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1920),
+              y: typeof window !== 'undefined' ? window.innerHeight + 100 : 1180,
               rotate: Math.random() * 360
             }}
             animate={{ 
@@ -112,22 +112,23 @@ const VisualStaff: React.FC = () => {
 
       {/* Header */}
       <motion.div 
-        className="text-center pt-20 pb-10 relative z-10"
+        className="text-center pt-16 pb-4 sm:pt-20 sm:pb-10 relative z-10 flex-shrink-0"
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-2 sm:mb-4">
           Lever Ward Legends
         </h1>
-        <p className="text-lg sm:text-xl text-hospital-mint">
+        <p className="text-base sm:text-lg md:text-xl text-hospital-mint">
           The people who made our placement unforgettable
         </p>
       </motion.div>
 
-      {/* Staff Cards */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pb-20 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+      {/* Staff Cards - Scrollable container */}
+      <div className="flex-1 overflow-y-auto relative z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
           {staff.map((member, index) => (
             <motion.div
               key={index}
@@ -139,7 +140,7 @@ const VisualStaff: React.FC = () => {
               onHoverEnd={() => setHoveredCard(null)}
             >
               <motion.div
-                className="bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-gray-800 overflow-hidden"
+                className="bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 md:p-8 border border-gray-800 overflow-hidden"
                 whileHover={{ scale: 1.02 }}
                 animate={hoveredCard === index ? member.animation : {}}
               >
@@ -195,9 +196,9 @@ const VisualStaff: React.FC = () => {
 
                 {/* Content */}
                 <div className="relative z-10">
-                  <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-start justify-between mb-4 sm:mb-6">
                     <motion.div 
-                      className="text-6xl"
+                      className="text-4xl sm:text-5xl md:text-6xl"
                       animate={{ 
                         scale: hoveredCard === index ? [1, 1.2, 1] : 1,
                         rotate: hoveredCard === index ? [0, 10, -10, 0] : 0
@@ -209,7 +210,7 @@ const VisualStaff: React.FC = () => {
                     
                     {/* Technical hexagon badge */}
                     <div className="relative">
-                      <svg width="60" height="60" viewBox="0 0 60 60">
+                      <svg width="40" height="40" viewBox="0 0 60 60" className="sm:w-[50px] sm:h-[50px] md:w-[60px] md:h-[60px]">
                         <polygon
                           points="30,5 50,17.5 50,42.5 30,55 10,42.5 10,17.5"
                           fill="none"
@@ -232,15 +233,15 @@ const VisualStaff: React.FC = () => {
                     </div>
                   </div>
 
-                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1">
                     {member.title}
                   </h3>
-                  <p className="text-sm font-medium mb-4" style={{ color: member.color }}>
+                  <p className="text-xs sm:text-sm font-medium mb-3 sm:mb-4" style={{ color: member.color }}>
                     {member.subtitle}
                   </p>
                   
                   <motion.p 
-                    className="text-gray-400"
+                    className="text-sm sm:text-base text-gray-400"
                     initial={{ opacity: 0.7 }}
                     animate={{ opacity: hoveredCard === index ? 1 : 0.7 }}
                   >
@@ -279,10 +280,11 @@ const VisualStaff: React.FC = () => {
             </motion.div>
           ))}
         </div>
+        </div>
       </div>
 
       {/* Bottom decoration */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden hidden md:block">
+      <div className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden hidden md:block pointer-events-none">
         <motion.div
           className="absolute bottom-0 left-1/2 -translate-x-1/2"
           initial={{ y: 100 }}

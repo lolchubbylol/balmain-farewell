@@ -102,7 +102,8 @@ export default function Home() {
           break;
         case ' ':
           e.preventDefault();
-          setAutoPlay(!autoPlay);
+          // Remove auto-play toggle functionality
+          // setAutoPlay(!autoPlay);
           break;
         case 'Escape':
           setIsMenuOpen(false);
@@ -170,7 +171,7 @@ export default function Home() {
   useEffect(() => {
     setTimeout(() => {
       setIsLoading(false);
-      // Don't auto-start - let user control navigation
+      setAutoPlay(false); // Explicitly set to false on load
     }, 1500);
   }, []);
 
@@ -286,17 +287,7 @@ export default function Home() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Auto-play indicator */}
-      {autoPlay && (
-        <motion.div
-          className="fixed top-20 left-1/2 -translate-x-1/2 bg-hospital-mint/20 text-hospital-mint px-4 py-2 rounded-full z-30"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-        >
-          Auto-playing • Press space to stop
-        </motion.div>
-      )}
+      {/* Auto-play removed - no indicator needed */}
 
       {/* Navigation hint (shows briefly at start) */}
       <AnimatePresence>

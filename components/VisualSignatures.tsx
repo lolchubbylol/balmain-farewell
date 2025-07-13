@@ -44,7 +44,7 @@ const VisualSignatures: React.FC = () => {
 
   // Draw animated signature
   const SignaturePath = ({ path, color, delay }: { path: string; color: string; delay: number }) => (
-    <svg width="150" height="80" className="w-full h-20">
+    <svg width="150" height="80" className="w-full h-16 sm:h-20">
       <motion.path
         d={path}
         stroke={color}
@@ -72,7 +72,7 @@ const VisualSignatures: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-hospital-dark to-black relative overflow-hidden">
+    <div className="h-screen bg-gradient-to-b from-hospital-dark to-black relative overflow-hidden flex flex-col">
       {/* Subtle ambient effects */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full filter blur-3xl" />
@@ -86,12 +86,12 @@ const VisualSignatures: React.FC = () => {
             className="absolute text-4xl"
             style={{ opacity: 0.15 + Math.random() * 0.2 }}
             initial={{ 
-              x: Math.random() * window.innerWidth,
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1920),
               y: -50,
               rotate: Math.random() * 360
             }}
             animate={{ 
-              y: window.innerHeight + 50,
+              y: typeof window !== 'undefined' ? window.innerHeight + 50 : 1130,
               rotate: 360 + Math.random() * 360,
               x: `+=${Math.random() * 100 - 50}`
             }}
@@ -109,24 +109,25 @@ const VisualSignatures: React.FC = () => {
 
       {/* Header */}
       <motion.div 
-        className="text-center pt-20 pb-10 relative z-10"
+        className="text-center pt-16 pb-4 sm:pt-20 sm:pb-10 relative z-10 flex-shrink-0"
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-2 sm:mb-4">
           The Survivors
         </h1>
-        <p className="text-lg sm:text-xl text-hospital-mint mb-2">
+        <p className="text-base sm:text-lg md:text-xl text-hospital-mint mb-1 sm:mb-2">
           University of Sydney • Class of 2025
         </p>
-        <p className="text-sm text-gray-500">
+        <p className="text-xs sm:text-sm text-gray-500">
           *Placement completion certificate pending
         </p>
       </motion.div>
 
-      {/* Student Cards */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pb-20 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+      {/* Student Cards - Scrollable container */}
+      <div className="flex-1 overflow-y-auto relative z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
           {students.map((student, index) => (
             <motion.div
               key={student.name}
@@ -136,18 +137,18 @@ const VisualSignatures: React.FC = () => {
               transition={{ delay: index * 0.2 }}
             >
               <motion.div
-                className="bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-gray-800"
+                className="bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-2xl p-3 sm:p-4 md:p-6 border border-gray-800"
                 whileHover={{ scale: 1.02, rotate: [-1, 1, -1] }}
                 transition={{ rotate: { duration: 0.5 } }}
               >
                 {/* Student info */}
-                <div className="mb-4">
-                  <h3 className="text-xl sm:text-2xl font-bold text-white">{student.name}</h3>
-                  <p className="text-sm text-gray-400">{student.subtitle}</p>
+                <div className="mb-3 sm:mb-4">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white">{student.name}</h3>
+                  <p className="text-xs sm:text-sm text-gray-400">{student.subtitle}</p>
                 </div>
 
                 {/* Signature area */}
-                <div className="bg-white/5 rounded-lg p-4 mb-4 relative overflow-hidden">
+                <div className="bg-white/5 rounded-lg p-2 sm:p-3 md:p-4 mb-3 sm:mb-4 relative overflow-hidden">
                   {/* Paper texture lines */}
                   <div className="absolute inset-0 opacity-10">
                     {[...Array(8)].map((_, i) => (
@@ -168,7 +169,7 @@ const VisualSignatures: React.FC = () => {
 
                 {/* Fun fact */}
                 <motion.div
-                  className="flex items-center justify-between text-sm"
+                  className="flex items-center justify-between text-xs sm:text-sm"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: index * 0.3 + 1 }}
@@ -179,28 +180,28 @@ const VisualSignatures: React.FC = () => {
 
                 {/* Achievement badges */}
                 <motion.div
-                  className="mt-4 flex gap-2"
+                  className="mt-3 sm:mt-4 flex gap-1 sm:gap-2"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.3 + 1.5 }}
                 >
                   {index === 0 && (
-                    <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded">
+                    <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-500/20 text-blue-400 text-[10px] sm:text-xs rounded">
                       Most Curious
                     </span>
                   )}
                   {index === 1 && (
-                    <span className="px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded">
+                    <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-red-500/20 text-red-400 text-[10px] sm:text-xs rounded">
                       Caffeine Champion
                     </span>
                   )}
                   {index === 2 && (
-                    <span className="px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs rounded">
+                    <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-cyan-500/20 text-cyan-400 text-[10px] sm:text-xs rounded">
                       Note Ninja
                     </span>
                   )}
                   {index === 3 && (
-                    <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded">
+                    <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-yellow-500/20 text-yellow-400 text-[10px] sm:text-xs rounded">
                       Punctuality Pro
                     </span>
                   )}
@@ -212,21 +213,22 @@ const VisualSignatures: React.FC = () => {
 
         {/* Group message */}
         <motion.div
-          className="mt-12 text-center"
+          className="mt-8 sm:mt-12 text-center pb-4"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5 }}
         >
-          <p className="text-base sm:text-lg text-white mb-2">
+          <p className="text-sm sm:text-base md:text-lg text-white mb-1 sm:mb-2">
             Thanks for putting up with us
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-xs sm:text-sm text-gray-500">
             We promise we were taking notes, not doodling
           </p>
-          <p className="text-xs text-gray-600 mt-4">
+          <p className="text-xs text-gray-600 mt-2 sm:mt-4">
             (Okay, maybe a little doodling)
           </p>
         </motion.div>
+        </div>
       </div>
 
       {/* Bottom kangaroo animation */}
@@ -234,7 +236,7 @@ const VisualSignatures: React.FC = () => {
         <motion.div
           className="absolute bottom-0"
           initial={{ x: -100 }}
-          animate={{ x: window.innerWidth + 100 }}
+          animate={{ x: typeof window !== 'undefined' ? window.innerWidth + 100 : 2020 }}
           transition={{ 
             duration: 20,
             repeat: Infinity,

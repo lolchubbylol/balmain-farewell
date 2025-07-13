@@ -148,7 +148,7 @@ export default function Navigation({
         animate={{ opacity: 1 }}
         transition={{ delay: 2 }}
       >
-        <span className="text-hospital-mint">↑↓</span> Navigate • <span className="text-hospital-mint">Space</span> Auto-play
+        <span className="text-hospital-mint">↑↓</span> Navigate
       </motion.div>
     </>
   );
