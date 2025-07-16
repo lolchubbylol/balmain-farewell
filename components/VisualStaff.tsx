@@ -13,10 +13,11 @@ const VisualStaff: React.FC = () => {
       color: "#4A90E2",
       icon: "🩺",
       description: "Navigated us through the complexities of care",
-      animation: { rotate: [0, 5, -5, 0], transition: { duration: 2, repeat: Infinity } }
+      animation: { rotate: [0, 5, -5, 0], transition: { duration: 2, repeat: Infinity } },
+      showStars: true
     },
     {
-      title: "Kim",
+      title: "Jae Kim",
       subtitle: "Korean Excellence 🇰🇷",
       color: "#FF6B6B", 
       icon: "💉",
@@ -24,7 +25,7 @@ const VisualStaff: React.FC = () => {
       animation: { y: [0, -10, 0], transition: { duration: 1.5, repeat: Infinity } }
     },
     {
-      title: "Simone",
+      title: "Simone Stakes",
       subtitle: "Buddy Nurse",
       color: "#4ECDC4",
       icon: "🤝",
@@ -38,6 +39,30 @@ const VisualStaff: React.FC = () => {
       icon: "💪",
       description: "Vigorous training, unforgettable lessons",
       animation: { x: [-2, 2, -2], transition: { duration: 0.5, repeat: Infinity } }
+    },
+    {
+      title: "Deepa Gurung",
+      subtitle: "The AIN",
+      color: "#9B59B6",
+      icon: "🌟",
+      description: "Supporting care with dedication and warmth",
+      animation: { rotate: [0, 360], transition: { duration: 3, repeat: Infinity, ease: "linear" } }
+    },
+    {
+      title: "Paris Bhandar",
+      subtitle: "The Quiet One",
+      color: "#1ABC9C",
+      icon: "🤫",
+      description: "Actions speak louder than words",
+      animation: { opacity: [0.7, 1, 0.7], transition: { duration: 2, repeat: Infinity } }
+    },
+    {
+      title: "Cynthia",
+      subtitle: "Portuguese Speaker 🇵🇹",
+      color: "#E74C3C",
+      icon: "🗣️",
+      description: "Obrigada pela paciência com nossa conversa!",
+      animation: { scale: [1, 1.1, 1], x: [-5, 5, -5], transition: { duration: 2.5, repeat: Infinity } }
     }
   ];
 
@@ -128,7 +153,7 @@ const VisualStaff: React.FC = () => {
       {/* Staff Cards - Scrollable container */}
       <div className="flex-1 overflow-y-auto relative z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pb-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {staff.map((member, index) => (
             <motion.div
               key={index}
@@ -138,10 +163,12 @@ const VisualStaff: React.FC = () => {
               transition={{ delay: index * 0.15 }}
               onHoverStart={() => setHoveredCard(index)}
               onHoverEnd={() => setHoveredCard(null)}
+              onTap={() => setHoveredCard(hoveredCard === index ? null : index)}
             >
               <motion.div
                 className="bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 md:p-8 border border-gray-800 overflow-hidden"
                 whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 animate={hoveredCard === index ? member.animation : {}}
               >
                 {/* Technical grid pattern overlay */}
@@ -239,6 +266,28 @@ const VisualStaff: React.FC = () => {
                   <p className="text-xs sm:text-sm font-medium mb-3 sm:mb-4" style={{ color: member.color }}>
                     {member.subtitle}
                   </p>
+                  
+                  {/* 5-star rating joke for Ma Lu */}
+                  {member.showStars && (
+                    <motion.div 
+                      className="flex gap-1 mb-2"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.5, type: "spring" }}
+                    >
+                      {[...Array(5)].map((_, i) => (
+                        <motion.span
+                          key={i}
+                          className="text-yellow-400 text-lg"
+                          initial={{ opacity: 0, rotate: -180 }}
+                          animate={{ opacity: 1, rotate: 0 }}
+                          transition={{ delay: 0.7 + i * 0.1 }}
+                        >
+                          ⭐
+                        </motion.span>
+                      ))}
+                    </motion.div>
+                  )}
                   
                   <motion.p 
                     className="text-sm sm:text-base text-gray-400"

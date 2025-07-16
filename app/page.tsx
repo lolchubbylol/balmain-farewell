@@ -204,10 +204,13 @@ export default function Home() {
       const deltaY = touchStartY - touchEndY;
       const deltaX = touchStartX - touchEndX;
 
-      if (Math.abs(deltaY) > Math.abs(deltaX)) {
-        if (deltaY > threshold) {
+      // Only respond to horizontal swipes on mobile
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > threshold) {
+        if (deltaX > 0) {
+          // Swipe left - next section
           handleSectionChange((currentSection + 1) % sections.length);
-        } else if (deltaY < -threshold) {
+        } else {
+          // Swipe right - previous section
           handleSectionChange((currentSection - 1 + sections.length) % sections.length);
         }
       }
@@ -221,7 +224,10 @@ export default function Home() {
       wheelTimeout = setTimeout(() => handleWheel(e), 100);
     };
 
-    window.addEventListener('wheel', debouncedWheel, { passive: false });
+    // Only add wheel listener on desktop
+    if (window.innerWidth > 768) {
+      window.addEventListener('wheel', debouncedWheel, { passive: false });
+    }
     window.addEventListener('touchstart', handleTouchStart);
     window.addEventListener('touchend', handleTouchEnd);
 
