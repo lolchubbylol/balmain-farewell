@@ -6,8 +6,51 @@ import { motion, AnimatePresence, useSpring, useTransform, useMotionValue } from
 // Medical symbol component with 3D rotation
 const MedicalSymbol = memo(({ type, delay = 0, x = 0, y = 0 }: { type: 'stethoscope' | 'pill' | 'syringe' | 'thermometer' | 'cross'; delay?: number; x?: number; y?: number }) => {
   const motionValue = useMotionValue(0);
-  const springValue = useSpring(motionValue, { stiffness: 100, damping: 30 });
+  const springValue = useSpring(motionValue, { 
+    stiffness: 50, 
+    damping: 20,
+    mass: 0.5
+  });
   const rotateY = useTransform(springValue, [0, 1], [0, 360]);
+  
+  // Generate smooth motion path
+  const pathVariants = {
+    initial: { 
+      x,
+      y,
+      scale: 0,
+      opacity: 0,
+      rotateY: 0
+    },
+    animate: {
+      x: [
+        x,
+        x + Math.sin(delay) * 30,
+        x - Math.sin(delay + 1) * 20,
+        x + Math.sin(delay + 2) * 25,
+        x
+      ],
+      y: [
+        y,
+        y - 80,
+        y - 120,
+        y - 80,
+        y + 40,
+        y
+      ],
+      scale: [0, 1.2, 1, 1, 1, 0],
+      opacity: [0, 1, 1, 1, 0.5, 0],
+      rotateY: [0, 90, 180, 270, 360],
+      transition: {
+        duration: 12 + Math.random() * 6,
+        delay,
+        repeat: Infinity,
+        repeatDelay: Math.random() * 3,
+        ease: "easeInOut",
+        times: [0, 0.2, 0.4, 0.6, 0.8, 1]
+      }
+    }
+  };
   
   const symbols = {
     stethoscope: (
@@ -49,33 +92,27 @@ const MedicalSymbol = memo(({ type, delay = 0, x = 0, y = 0 }: { type: 'stethosc
   return (
     <motion.div
       className="absolute pointer-events-none"
-      initial={{ 
-        y,
-        x,
-        scale: 0,
-        opacity: 0
-      }}
-      animate={{ 
-        y: [y, y - 50, y + 30, y],
-        x: [x, x + 20, x - 20, x],
-        scale: [0, 1.2, 1],
-        opacity: [0, 1, 1, 0],
-        rotateY: 360
-      }}
-      transition={{
-        duration: 10 + Math.random() * 5,
-        delay,
-        repeat: Infinity,
-        repeatDelay: Math.random() * 5
-      }}
+      variants={pathVariants}
+      initial="initial"
+      animate="animate"
       style={{
         perspective: 1000,
-        transformStyle: 'preserve-3d'
+        transformStyle: 'preserve-3d',
+        willChange: 'transform, opacity',
+        transform: 'translateZ(0)'
       }}
     >
       <motion.div
-        style={{ rotateY }}
+        animate={{ rotateY: 360 }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "linear"
+        }}
         className="transform-gpu"
+        style={{
+          willChange: 'transform'
+        }}
       >
         {symbols[type]}
       </motion.div>
@@ -85,8 +122,25 @@ const MedicalSymbol = memo(({ type, delay = 0, x = 0, y = 0 }: { type: 'stethosc
 
 MedicalSymbol.displayName = 'MedicalSymbol';
 
-// DNA Helix Component
+// DNA Helix Component with smooth sine wave motion
 const DNAHelix = memo(() => {
+  const helixVariants = {
+    animate: (i: number) => ({
+      cx: [
+        350 + Math.sin(i * 0.5) * 50,
+        350 + Math.sin(i * 0.5 + Math.PI) * 50,
+        350 + Math.sin(i * 0.5) * 50
+      ],
+      transition: {
+        duration: 4,
+        delay: i * 0.2,
+        repeat: Infinity,
+        ease: "easeInOut",
+        times: [0, 0.5, 1]
+      }
+    })
+  };
+  
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
       <svg className="absolute w-full h-full opacity-10" viewBox="0 0 1920 1080">
@@ -96,65 +150,77 @@ const DNAHelix = memo(() => {
             <stop offset="50%" stopColor="#00843D" stopOpacity="0.5"/>
             <stop offset="100%" stopColor="#FF6B6B" stopOpacity="0.3"/>
           </linearGradient>
+          <filter id="dnaGlow">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
         </defs>
-        <motion.g fill="url(#dnaGradient)">
-          {[...Array(20)].map((_, i) => {
-            const y = i * 100;
-            const phase = i * 0.3;
+        <g fill="url(#dnaGradient)" filter="url(#dnaGlow)">
+          {[...Array(15)].map((_, i) => {
+            const y = i * 80 + 50;
+            const offset = Math.sin(i * 0.5) * 50;
+            
             return (
-              <motion.g key={i}>
+              <g key={i}>
                 <motion.circle
-                  cx="300"
+                  cx={350 - offset}
                   cy={y}
-                  r="8"
-                  animate={{
-                    cx: [300, 400, 300],
-                    opacity: [0.3, 0.8, 0.3]
-                  }}
-                  transition={{
-                    duration: 3,
-                    delay: phase,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
+                  r="6"
+                  custom={i}
+                  variants={helixVariants}
+                  animate="animate"
+                  style={{ opacity: 0.6 + Math.sin(i * 0.3) * 0.2 }}
                 />
                 <motion.circle
-                  cx="400"
+                  cx={350 + offset}
                   cy={y}
-                  r="8"
-                  animate={{
-                    cx: [400, 300, 400],
-                    opacity: [0.8, 0.3, 0.8]
+                  r="6"
+                  custom={i}
+                  variants={{
+                    animate: {
+                      cx: [
+                        350 + offset,
+                        350 - offset,
+                        350 + offset
+                      ],
+                      transition: {
+                        duration: 4,
+                        delay: i * 0.2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }
+                    }
                   }}
-                  transition={{
-                    duration: 3,
-                    delay: phase,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
+                  animate="animate"
+                  style={{ opacity: 0.6 + Math.cos(i * 0.3) * 0.2 }}
                 />
                 <motion.line
-                  x1="300"
+                  x1={350 - offset}
                   y1={y}
-                  x2="400"
+                  x2={350 + offset}
                   y2={y}
                   stroke="url(#dnaGradient)"
-                  strokeWidth="2"
+                  strokeWidth="1.5"
+                  opacity={0.4}
                   animate={{
-                    x1: [300, 400, 300],
-                    x2: [400, 300, 400]
+                    x1: [350 - offset, 350 + offset, 350 - offset],
+                    x2: [350 + offset, 350 - offset, 350 + offset],
+                    opacity: [0.4, 0.7, 0.4]
                   }}
                   transition={{
-                    duration: 3,
-                    delay: phase,
+                    duration: 4,
+                    delay: i * 0.2,
                     repeat: Infinity,
                     ease: "easeInOut"
                   }}
                 />
-              </motion.g>
+              </g>
             );
           })}
-        </motion.g>
+        </g>
       </svg>
     </div>
   );
@@ -191,41 +257,56 @@ MedicalEquipmentBg.displayName = 'MedicalEquipmentBg';
 
 // Pulse Ring Component for heartbeat visualization
 const PulseRing = memo(({ x, y, delay = 0 }: { x: number; y: number; delay?: number }) => (
-  <motion.div
-    className="absolute pointer-events-none"
-    style={{ left: x, top: y }}
-    initial={{ scale: 0, opacity: 1 }}
-    animate={{ 
-      scale: [0, 2, 3],
-      opacity: [1, 0.5, 0]
-    }}
-    transition={{
-      duration: 2,
-      delay,
-      ease: "easeOut"
-    }}
-  >
-    <div className="w-20 h-20 rounded-full border-2 border-hospital-mint" />
-  </motion.div>
+  <AnimatePresence>
+    <motion.div
+      className="absolute pointer-events-none"
+      style={{ 
+        left: x - 40, // Center the ring
+        top: y - 40,
+        willChange: 'transform, opacity'
+      }}
+      initial={{ scale: 0.2, opacity: 0 }}
+      animate={{ 
+        scale: [0.2, 1.5, 2.5],
+        opacity: [0, 0.8, 0]
+      }}
+      exit={{ opacity: 0 }}
+      transition={{
+        duration: 1.5,
+        delay,
+        ease: [0.4, 0, 0.2, 1],
+        times: [0, 0.4, 1]
+      }}
+    >
+      <div className="w-20 h-20 rounded-full border-2 border-hospital-mint transform-gpu" />
+    </motion.div>
+  </AnimatePresence>
 ));
 
 PulseRing.displayName = 'PulseRing';
 
-// Sound Wave Bars
+// Sound Wave Bars with smooth spring animations
 const SoundWaveBars = memo(({ isActive }: { isActive: boolean }) => (
   <div className="absolute bottom-10 right-10 flex items-end gap-1">
     {[...Array(5)].map((_, i) => (
       <motion.div
         key={i}
-        className="w-1 bg-hospital-mint"
+        className="w-1 bg-hospital-mint transform-gpu"
         animate={{
-          height: isActive ? [10, 30, 10] : 10,
-          opacity: isActive ? [0.3, 1, 0.3] : 0.3
+          height: isActive ? [10, 25 + i * 3, 10] : 10,
+          opacity: isActive ? [0.3, 1, 0.3] : 0.3,
+          scaleY: isActive ? [1, 1.2, 1] : 1
         }}
         transition={{
-          duration: 0.5 + i * 0.1,
+          duration: 0.6 + i * 0.05,
           repeat: Infinity,
-          delay: i * 0.1
+          delay: i * 0.1,
+          ease: [0.4, 0, 0.6, 1],
+          times: [0, 0.5, 1]
+        }}
+        style={{
+          transformOrigin: 'bottom',
+          willChange: 'transform, opacity, height'
         }}
       />
     ))}
@@ -277,6 +358,26 @@ const EucalyptusLeaf = memo(({ delay = 0, x = 0 }: { delay?: number; x?: number 
     );
   }
   
+  // Smooth floating path for desktop
+  const floatPath = {
+    x: [
+      x,
+      x + Math.sin(delay * 0.5) * 100,
+      x - Math.sin(delay * 0.7) * 80,
+      x + Math.sin(delay * 0.3) * 60,
+      x
+    ],
+    y: [-100, 200, 400, 600, window.innerHeight + 100],
+    rotate: [
+      0,
+      45 * (Math.random() > 0.5 ? 1 : -1),
+      90 * (Math.random() > 0.5 ? 1 : -1),
+      180 * (Math.random() > 0.5 ? 1 : -1),
+      360 * (Math.random() > 0.5 ? 1 : -1)
+    ],
+    opacity: [0, 0.8, 0.8, 0.8, 0]
+  };
+  
   return (
     <motion.div
       className="absolute pointer-events-none"
@@ -286,21 +387,17 @@ const EucalyptusLeaf = memo(({ delay = 0, x = 0 }: { delay?: number; x?: number 
         rotate: 0,
         opacity: 0 
       }}
-      animate={{ 
-        y: window.innerHeight + 100,
-        x: x + (Math.random() - 0.5) * 200,
-        rotate: 360 * (Math.random() > 0.5 ? 1 : -1),
-        opacity: [0, 0.8, 0.8, 0]
-      }}
+      animate={floatPath}
       transition={{
-        duration: 15 + Math.random() * 10,
+        duration: 18 + Math.random() * 8,
         delay: delay,
         repeat: Infinity,
-        ease: "linear"
+        ease: "linear",
+        times: [0, 0.25, 0.5, 0.75, 1]
       }}
       style={{
-        willChange: 'transform',
-        transform: 'translate3d(0, 0, 0)'
+        willChange: 'transform, opacity',
+        transform: 'translateZ(0)'
       }}
     >
       <svg width="40" height="60" viewBox="0 0 40 60" fill="none">
@@ -322,55 +419,47 @@ const EucalyptusLeaf = memo(({ delay = 0, x = 0 }: { delay?: number; x?: number 
 
 EucalyptusLeaf.displayName = 'EucalyptusLeaf';
 
-// Optimized particle field using CSS animations
+// Optimized particle field using Framer Motion for smooth animations
 const ParticleField = memo(() => {
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-  const particleCount = isMobile ? 20 : 50; // Reduce particles on mobile
+  const particleCount = isMobile ? 15 : 30; // Reduce particles on mobile
   
   const particles = Array.from({ length: particleCount }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
     y: Math.random() * 100,
     size: Math.random() * 3 + 1,
-    duration: Math.random() * 20 + 10,
-    delay: Math.random() * 5
+    duration: Math.random() * 15 + 10,
+    delay: Math.random() * 5,
+    xOffset: (Math.random() - 0.5) * 40
   }));
 
   return (
     <div className="absolute inset-0 pointer-events-none">
-      <style jsx>{`
-        @keyframes particle-float {
-          0% {
-            transform: translate3d(0, 0, 0) scale(0);
-            opacity: 0;
-          }
-          50% {
-            transform: translate3d(var(--x-offset), -30px, 0) scale(1);
-            opacity: 1;
-          }
-          100% {
-            transform: translate3d(0, 0, 0) scale(0);
-            opacity: 0;
-          }
-        }
-        
-        .particle {
-          will-change: transform;
-          transform: translate3d(0, 0, 0);
-        }
-      `}</style>
       {particles.map((particle) => (
-        <div
+        <motion.div
           key={particle.id}
-          className="absolute bg-hospital-mint rounded-full particle"
+          className="absolute bg-hospital-mint rounded-full"
           style={{
             left: `${particle.x}%`,
             top: `${particle.y}%`,
             width: particle.size,
             height: particle.size,
-            animation: `particle-float ${particle.duration}s ${particle.delay}s infinite ease-in-out`,
-            '--x-offset': `${Math.random() * 20 - 10}px`
-          } as React.CSSProperties}
+            willChange: 'transform, opacity'
+          }}
+          animate={{
+            scale: [0, 1, 1, 0],
+            opacity: [0, 1, 1, 0],
+            x: [0, particle.xOffset, 0],
+            y: [0, -30, 0]
+          }}
+          transition={{
+            duration: particle.duration,
+            delay: particle.delay,
+            repeat: Infinity,
+            ease: "easeInOut",
+            times: [0, 0.3, 0.7, 1]
+          }}
         />
       ))}
     </div>
@@ -379,61 +468,102 @@ const ParticleField = memo(() => {
 
 ParticleField.displayName = 'ParticleField';
 
-// Memoized Southern Cross component
-const SouthernCross = memo(() => (
-  <div className="absolute inset-0">
-    <svg className="absolute top-0 right-0 w-1/3 h-1/2" viewBox="0 0 300 300">
-      <defs>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-          <feMerge>
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-      
-      {/* Constellation lines */}
-      <motion.path
-        d="M150 60 L160 75 L180 66 L165 90 L144 72"
-        stroke="rgba(255, 255, 255, 0.3)"
-        strokeWidth="1"
-        fill="none"
-        initial={{ pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{ duration: 3, delay: 1 }}
-      />
-      
-      {/* Stars */}
-      {[
-        { x: 150, y: 60, size: 3 },
-        { x: 160, y: 75, size: 4 },
-        { x: 180, y: 66, size: 3 },
-        { x: 165, y: 90, size: 3 },
-        { x: 144, y: 72, size: 2.5 },
-      ].map((star, i) => (
-        <motion.circle
-          key={i}
-          cx={star.x}
-          cy={star.y}
-          r={star.size}
-          fill="white"
-          filter="url(#glow)"
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ 
-            opacity: [0, 1, 0.7, 1],
-            scale: 1 
-          }}
+// Memoized Southern Cross component with twinkling effect
+const SouthernCross = memo(() => {
+  const starVariants = {
+    initial: { opacity: 0, scale: 0 },
+    animate: (i: number) => ({
+      opacity: [0, 1, 0.6 + Math.random() * 0.4, 1],
+      scale: [0, 1.2, 1, 1],
+      transition: {
+        delay: i * 0.2,
+        duration: 2,
+        opacity: {
+          repeat: Infinity,
+          duration: 2 + Math.random() * 2,
+          repeatType: "reverse" as const,
+          ease: "easeInOut"
+        },
+        scale: {
+          duration: 1,
+          ease: [0.4, 0, 0.2, 1]
+        }
+      }
+    })
+  };
+  
+  return (
+    <div className="absolute inset-0">
+      <svg className="absolute top-0 right-0 w-1/3 h-1/2" viewBox="0 0 300 300">
+        <defs>
+          <filter id="starGlow">
+            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <radialGradient id="starGradient">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="1"/>
+            <stop offset="50%" stopColor="#e0f2ff" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#b3d9ff" stopOpacity="0.6"/>
+          </radialGradient>
+        </defs>
+        
+        {/* Constellation lines with smooth draw */}
+        <motion.path
+          d="M150 60 L160 75 L180 66 L165 90 L144 72"
+          stroke="rgba(255, 255, 255, 0.2)"
+          strokeWidth="1"
+          fill="none"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 0.3 }}
           transition={{ 
-            delay: i * 0.2,
-            duration: 2,
-            opacity: { repeat: Infinity, duration: 3 + i * 0.5 }
+            duration: 3, 
+            delay: 1,
+            ease: "easeInOut"
           }}
         />
-      ))}
-    </svg>
-  </div>
-));
+        
+        {/* Stars with enhanced glow */}
+        {[
+          { x: 150, y: 60, size: 3 },
+          { x: 160, y: 75, size: 4 },
+          { x: 180, y: 66, size: 3 },
+          { x: 165, y: 90, size: 3 },
+          { x: 144, y: 72, size: 2.5 },
+        ].map((star, i) => (
+          <motion.g key={i}>
+            {/* Star glow */}
+            <motion.circle
+              cx={star.x}
+              cy={star.y}
+              r={star.size * 3}
+              fill="url(#starGradient)"
+              opacity={0.3}
+              custom={i}
+              variants={starVariants}
+              initial="initial"
+              animate="animate"
+            />
+            {/* Star core */}
+            <motion.circle
+              cx={star.x}
+              cy={star.y}
+              r={star.size}
+              fill="white"
+              filter="url(#starGlow)"
+              custom={i}
+              variants={starVariants}
+              initial="initial"
+              animate="animate"
+            />
+          </motion.g>
+        ))}
+      </svg>
+    </div>
+  );
+});
 
 SouthernCross.displayName = 'SouthernCross';
 
@@ -467,85 +597,109 @@ export default function VisualHero() {
     };
   }, []);
   
-  // Clean up pulse positions after animation
+  // Clean up pulse positions after animation with smooth removal
   useEffect(() => {
     const cleanup = setInterval(() => {
-      setPulsePositions(prev => prev.filter(p => Date.now() - p.id < 2000));
-    }, 1000);
+      setPulsePositions(prev => {
+        const now = Date.now();
+        return prev.filter(p => {
+          // Keep pulses for 1.5 seconds (duration of animation)
+          const age = now - Math.floor(p.id);
+          return age < 1500;
+        });
+      });
+    }, 100); // Check more frequently for smoother cleanup
     
     return () => clearInterval(cleanup);
   }, []);
 
-  // Create control points for smooth EKG curve
+  // Create control points for smooth EKG curve with interpolation
   const createEKGPath = useCallback((progress: number, width: number, height: number, time: number) => {
     const points = [];
     const centerY = height / 2;
+    const samplesPerPixel = 2; // Higher sampling for smoother curves
+    const totalSamples = Math.floor(progress * width * samplesPerPixel);
+    
+    // Helper function for smooth interpolation
+    const smoothStep = (edge0: number, edge1: number, x: number) => {
+      const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+      return t * t * (3 - 2 * t);
+    };
     
     // Generate smooth EKG curve with proper continuity
-    for (let i = 0; i <= progress * 1000; i++) {
-      const x = (i / 1000) * width;
+    for (let i = 0; i <= totalSamples; i++) {
+      const x = (i / totalSamples) * progress * width;
       let y = centerY;
       
-      const t = i / 1000;
+      const t = i / totalSamples;
       
       // Create realistic EKG pattern with smooth transitions
       if (isMorphing && t > 0.7) {
-        // Morph into heart shape
+        // Smooth morph into heart shape
+        const morphProgress = smoothStep(0.7, 1, t);
         const heartT = (t - 0.7) / 0.3;
-        const heartScale = 50;
+        const heartScale = 50 * morphProgress;
         const angle = heartT * Math.PI * 2;
         const heartX = 16 * Math.pow(Math.sin(angle), 3);
         const heartY = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
-        y = centerY + heartY * heartScale * (1 - Math.abs(heartT - 0.5) * 2);
-      } else if (t < 0.4) {
-        // Baseline with subtle variation
-        y = centerY + Math.sin(t * 20) * 2 + Math.cos(t * 30) * 1;
-      } else if (t >= 0.4 && t < 0.45) {
-        // P wave (smooth bump)
-        const localT = (t - 0.4) / 0.05;
-        y = centerY - Math.sin(localT * Math.PI) * 30;
-      } else if (t >= 0.45 && t < 0.47) {
-        // PR segment
-        y = centerY + Math.sin(t * 40) * 2;
-      } else if (t >= 0.47 && t < 0.48) {
-        // Q wave (small dip)
-        const localT = (t - 0.47) / 0.01;
-        y = centerY + Math.sin(localT * Math.PI) * 15;
-      } else if (t >= 0.48 && t < 0.49) {
-        // R wave (sharp peak)
-        const localT = (t - 0.48) / 0.01;
-        y = centerY - Math.sin(localT * Math.PI) * 150 * Math.pow(1 - localT, 0.3);
         
-        // Trigger pulse visualization at R wave peak
-        if (localT > 0.4 && localT < 0.6 && !isMorphing) {
-          const currentX = x;
-          const currentY = y;
-          if (Math.random() > 0.7) { // Don't trigger every time for performance
-            setPulsePositions(prev => [...prev, { x: currentX, y: currentY, id: Date.now() }]);
-            setShowPulse(true);
-            setTimeout(() => setShowPulse(false), 500);
-          }
-        }
-      } else if (t >= 0.49 && t < 0.5) {
-        // S wave (sharp dip)
-        const localT = (t - 0.49) / 0.01;
-        y = centerY + Math.sin(localT * Math.PI) * 180 * Math.pow(localT, 0.3);
-      } else if (t >= 0.5 && t < 0.52) {
-        // Return to baseline
-        const localT = (t - 0.5) / 0.02;
+        // Blend between EKG and heart shape
         const baselineY = centerY + Math.sin(t * 20) * 2;
-        const sWaveEndY = centerY + 180;
-        y = sWaveEndY + (baselineY - sWaveEndY) * Math.pow(localT, 2);
-      } else if (t >= 0.52 && t < 0.58) {
-        // ST segment
-        y = centerY + Math.sin(t * 25) * 3 + Math.cos(t * 35) * 2;
-      } else if (t >= 0.58 && t < 0.63) {
-        // T wave (smooth bump)
-        const localT = (t - 0.58) / 0.05;
-        y = centerY - Math.sin(localT * Math.PI) * 35 * (1 + Math.sin(time * 0.005) * 0.1);
+        y = baselineY + heartY * heartScale * smoothStep(0, 1, 1 - Math.abs(heartT - 0.5) * 2);
       } else {
-        // Return to baseline with variation
-        y = centerY + Math.sin(t * 20) * 2 + Math.cos(t * 30) * 1;
+        // Normal EKG pattern with smooth transitions
+        const baselineVariation = Math.sin(t * 20 + time * 0.001) * 2 + Math.cos(t * 30 + time * 0.002) * 1;
+        
+        if (t < 0.4) {
+          // Baseline
+          y = centerY + baselineVariation;
+        } else if (t < 0.45) {
+          // P wave with smooth blending
+          const localT = smoothStep(0.4, 0.45, t);
+          const pWave = -Math.sin(localT * Math.PI) * 30;
+          y = centerY + baselineVariation * (1 - localT) + pWave;
+        } else if (t < 0.47) {
+          // PR segment
+          y = centerY + baselineVariation;
+        } else if (t < 0.48) {
+          // Q wave
+          const localT = smoothStep(0.47, 0.48, t);
+          const qWave = Math.sin(localT * Math.PI) * 15;
+          y = centerY + baselineVariation * (1 - localT) + qWave;
+        } else if (t < 0.49) {
+          // R wave with smooth peak
+          const localT = smoothStep(0.48, 0.49, t);
+          const rWave = -Math.sin(localT * Math.PI) * 150 * Math.pow(1 - localT * 0.3, 2);
+          y = centerY + rWave;
+          
+          // Trigger pulse at peak
+          if (localT > 0.45 && localT < 0.55 && !isMorphing && Math.random() > 0.85) {
+            requestAnimationFrame(() => {
+              setPulsePositions(prev => [...prev, { x, y, id: Date.now() + Math.random() * 1000 }]);
+            });
+          }
+        } else if (t < 0.5) {
+          // S wave
+          const localT = smoothStep(0.49, 0.5, t);
+          const sWave = Math.sin(localT * Math.PI) * 180 * Math.pow(localT, 0.5);
+          y = centerY + sWave;
+        } else if (t < 0.52) {
+          // Smooth return to baseline
+          const localT = smoothStep(0.5, 0.52, t);
+          const sWaveEnd = 180;
+          y = centerY + sWaveEnd * (1 - Math.pow(localT, 2)) + baselineVariation * Math.pow(localT, 2);
+        } else if (t < 0.58) {
+          // ST segment
+          y = centerY + baselineVariation * 1.5;
+        } else if (t < 0.63) {
+          // T wave
+          const localT = smoothStep(0.58, 0.63, t);
+          const tWave = -Math.sin(localT * Math.PI) * 35;
+          y = centerY + baselineVariation * (1 - localT * 0.5) + tWave;
+        } else {
+          // Return to baseline
+          y = centerY + baselineVariation;
+        }
       }
       
       points.push({ x, y });
@@ -554,118 +708,197 @@ export default function VisualHero() {
     return points;
   }, [isMorphing]);
 
-  // Optimized EKG animation
+  // Optimized EKG animation with double buffering
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d', { alpha: false }); // Disable alpha for better performance
+    const ctx = canvas.getContext('2d', { 
+      alpha: false,
+      desynchronized: true // Better performance
+    });
     if (!ctx) return;
 
-    canvas.width = windowWidth;
-    canvas.height = 400;
+    // Set canvas size with device pixel ratio for crisp rendering
+    const dpr = window.devicePixelRatio || 1;
+    const width = windowWidth;
+    const height = 400;
+    
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    ctx.scale(dpr, dpr);
 
     let progress = 0;
     let time = 0;
     const animationDuration = 5000;
-    const startTime = Date.now();
-    let beatCount = 0;
+    const startTime = performance.now();
+    let lastFrameTime = startTime;
+    let frameCount = 0;
     
-    // Heart rate variation
+    // Heart rate variation with smooth transitions
+    let targetHeartRate = 72;
+    let currentHeartRate = 72;
     const heartRateInterval = setInterval(() => {
-      setHeartRate(prev => 68 + Math.floor(Math.random() * 8));
+      targetHeartRate = 68 + Math.floor(Math.random() * 8);
     }, 2000);
 
-    const drawEKG = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const drawEKG = (currentTime: number) => {
+      // Calculate smooth frame timing
+      const deltaTime = currentTime - lastFrameTime;
+      lastFrameTime = currentTime;
+      frameCount++;
       
-      // Complex gradient with multiple color stops
-      const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+      // Smooth heart rate transition
+      currentHeartRate += (targetHeartRate - currentHeartRate) * 0.05;
+      if (frameCount % 10 === 0) {
+        setHeartRate(Math.round(currentHeartRate));
+      }
+      
+      // Clear with a subtle fade effect for trail
+      ctx.fillStyle = 'rgba(1, 16, 18, 0.1)';
+      ctx.fillRect(0, 0, width, height);
+      
+      // Complex gradient with smooth transitions
+      const gradient = ctx.createLinearGradient(0, 0, width, 0);
+      const gradientProgress = Math.sin(currentTime * 0.0005) * 0.1 + 0.5;
+      
       gradient.addColorStop(0, 'rgba(78, 205, 196, 0)');
-      gradient.addColorStop(0.2, 'rgba(78, 205, 196, 0.3)');
-      gradient.addColorStop(0.35, 'rgba(78, 205, 196, 0.6)');
-      gradient.addColorStop(0.48, 'rgba(255, 204, 0, 0.9)');
-      gradient.addColorStop(0.52, 'rgba(0, 132, 61, 0.8)');
-      gradient.addColorStop(0.65, 'rgba(78, 205, 196, 0.6)');
+      gradient.addColorStop(0.2, `rgba(78, 205, 196, ${0.3 + gradientProgress * 0.1})`);
+      gradient.addColorStop(0.35, `rgba(78, 205, 196, ${0.6 + gradientProgress * 0.2})`);
+      gradient.addColorStop(0.48, `rgba(255, 204, 0, ${0.9 + gradientProgress * 0.1})`);
+      gradient.addColorStop(0.52, `rgba(0, 132, 61, ${0.8 + gradientProgress * 0.2})`);
+      gradient.addColorStop(0.65, `rgba(78, 205, 196, ${0.6 + gradientProgress * 0.1})`);
       gradient.addColorStop(0.8, 'rgba(78, 205, 196, 0.3)');
       gradient.addColorStop(1, 'rgba(78, 205, 196, 0)');
       
-      const currentTime = Date.now() - startTime;
-      progress = Math.min(currentTime / animationDuration, 1);
-      time = currentTime;
+      const elapsedTime = currentTime - startTime;
+      progress = Math.min(elapsedTime / animationDuration, 1);
+      time = elapsedTime;
 
-      const points = createEKGPath(progress, canvas.width, canvas.height, time);
+      const points = createEKGPath(progress, width, height, time);
       
-      // Draw fewer layers on mobile
+      // Adaptive quality based on performance
       const isMobile = windowWidth <= 768;
-      const layers = isMobile ? 1 : 3;
+      const targetFPS = 60;
+      const currentFPS = deltaTime > 0 ? 1000 / deltaTime : targetFPS;
+      const layers = isMobile || currentFPS < 30 ? 1 : (currentFPS < 50 ? 2 : 3);
+      
+      // Save context state
+      ctx.save();
       
       for (let layer = 0; layer < layers; layer++) {
         ctx.strokeStyle = gradient;
-        ctx.lineWidth = 4 - layer;
-        ctx.globalAlpha = 1 - layer * 0.3;
-        ctx.shadowBlur = isMobile ? 20 : 40 - layer * 10;
+        ctx.lineWidth = (4 - layer) * (1 + Math.sin(currentTime * 0.002) * 0.1);
+        ctx.globalAlpha = (1 - layer * 0.3) * 0.9;
+        ctx.shadowBlur = isMobile ? 15 : 30 - layer * 8;
         ctx.shadowColor = '#4ECDC4';
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
         
         ctx.beginPath();
         
-        // Use quadratic curves for ultra-smooth lines
-        if (points.length > 0) {
+        // Use cubic Bezier curves for ultra-smooth lines
+        if (points.length > 2) {
           ctx.moveTo(points[0].x, points[0].y);
           
-          for (let i = 1; i < points.length - 1; i++) {
-            const xc = (points[i].x + points[i + 1].x) / 2;
-            const yc = (points[i].y + points[i + 1].y) / 2;
-            ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+          // Calculate control points for smooth curve
+          for (let i = 1; i < points.length - 2; i++) {
+            const cp1x = (points[i].x + points[i + 1].x) / 2;
+            const cp1y = (points[i].y + points[i + 1].y) / 2;
+            const cp2x = cp1x;
+            const cp2y = cp1y;
+            
+            ctx.bezierCurveTo(
+              points[i].x, points[i].y,
+              cp1x, cp1y,
+              points[i + 1].x, points[i + 1].y
+            );
           }
           
-          // Last point
+          // Last segment
           if (points.length > 1) {
             const lastPoint = points[points.length - 1];
-            ctx.lineTo(lastPoint.x, lastPoint.y);
+            const secondLastPoint = points[points.length - 2];
+            ctx.quadraticCurveTo(
+              secondLastPoint.x, secondLastPoint.y,
+              lastPoint.x, lastPoint.y
+            );
           }
         }
 
         ctx.stroke();
       }
       
-      ctx.globalAlpha = 1;
+      // Restore context state
+      ctx.restore();
 
-      // Add glowing endpoint (skip on mobile for performance)
+      // Add glowing endpoint with smooth animation
       if (!isMobile && progress < 1 && points.length > 0) {
         const lastPoint = points[points.length - 1];
-        const glowGradient = ctx.createRadialGradient(lastPoint.x, lastPoint.y, 0, lastPoint.x, lastPoint.y, 20);
-        glowGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-        glowGradient.addColorStop(0.5, 'rgba(78, 205, 196, 0.4)');
+        const glowSize = 15 + Math.sin(currentTime * 0.01) * 5;
+        const glowGradient = ctx.createRadialGradient(
+          lastPoint.x, lastPoint.y, 0,
+          lastPoint.x, lastPoint.y, glowSize
+        );
+        glowGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+        glowGradient.addColorStop(0.3, 'rgba(78, 205, 196, 0.6)');
+        glowGradient.addColorStop(0.6, 'rgba(78, 205, 196, 0.3)');
         glowGradient.addColorStop(1, 'rgba(78, 205, 196, 0)');
         
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
         ctx.fillStyle = glowGradient;
         ctx.beginPath();
-        ctx.arc(lastPoint.x, lastPoint.y, 20, 0, Math.PI * 2);
+        ctx.arc(lastPoint.x, lastPoint.y, glowSize, 0, Math.PI * 2);
         ctx.fill();
+        ctx.restore();
       }
 
-      // Pulsing effect when complete
+      // Smooth pulsing effect when complete
       if (progress === 1) {
-        const pulseAlpha = 0.3 * (1 + Math.sin(Date.now() * 0.003));
+        const pulseAlpha = 0.2 + 0.1 * Math.sin(currentTime * 0.003);
+        ctx.save();
         ctx.globalAlpha = pulseAlpha;
+        ctx.globalCompositeOperation = 'lighter';
+        
+        // Redraw the last frame with glow
+        const glowPoints = createEKGPath(1, width, height, time);
+        ctx.strokeStyle = '#4ECDC4';
+        ctx.lineWidth = 8;
+        ctx.shadowBlur = 40;
+        ctx.shadowColor = '#4ECDC4';
+        
+        ctx.beginPath();
+        if (glowPoints.length > 0) {
+          ctx.moveTo(glowPoints[0].x, glowPoints[0].y);
+          for (let i = 1; i < glowPoints.length; i++) {
+            ctx.lineTo(glowPoints[i].x, glowPoints[i].y);
+          }
+        }
         ctx.stroke();
-        ctx.globalAlpha = 1;
+        ctx.restore();
       }
 
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(drawEKG);
       } else {
-        // Start morphing animation
-        setIsMorphing(true);
-        setTimeout(() => {
-          setShowThankYou(true);
-          clearInterval(heartRateInterval);
-        }, 1500);
+        // Smooth transition to morphing
+        if (!isMorphing) {
+          setTimeout(() => {
+            setIsMorphing(true);
+            setTimeout(() => {
+              setShowThankYou(true);
+              clearInterval(heartRateInterval);
+            }, 1000);
+          }, 500);
+        }
       }
     };
 
-    drawEKG();
+    // Start animation
+    animationRef.current = requestAnimationFrame(drawEKG);
 
     return () => {
       if (animationRef.current) {
@@ -689,25 +922,28 @@ export default function VisualHero() {
       <style jsx global>{`
         @keyframes floating-leaf {
           0% {
-            transform: translate3d(0, -100px, 0) rotate(0deg);
+            transform: translate3d(0, -100px, 0) rotate(0deg) scale(0);
             opacity: 0;
           }
-          20% {
+          10% {
+            transform: translate3d(10px, 0, 0) rotate(45deg) scale(1);
             opacity: 0.8;
           }
-          80% {
+          90% {
+            transform: translate3d(var(--x-drift, 50px), calc(100vh), 0) rotate(360deg) scale(1);
             opacity: 0.8;
           }
           100% {
-            transform: translate3d(var(--x-drift, 50px), calc(100vh + 200px), 0) rotate(360deg);
+            transform: translate3d(var(--x-drift, 50px), calc(100vh + 200px), 0) rotate(360deg) scale(0);
             opacity: 0;
           }
         }
         
         .floating-leaf {
-          animation: floating-leaf 20s linear infinite;
+          animation: floating-leaf 20s cubic-bezier(0.4, 0, 0.2, 1) infinite;
           animation-fill-mode: both;
           --x-drift: ${Math.random() * 200 - 100}px;
+          will-change: transform, opacity;
         }
         
         @media (max-width: 768px) {
@@ -819,10 +1055,12 @@ export default function VisualHero() {
               </div>
             </div>
             
-            {/* Pulse Rings */}
-            {pulsePositions.map(pos => (
-              <PulseRing key={pos.id} x={pos.x} y={pos.y} delay={0} />
-            ))}
+            {/* Pulse Rings with AnimatePresence */}
+            <AnimatePresence mode="popLayout">
+              {pulsePositions.map(pos => (
+                <PulseRing key={pos.id} x={pos.x} y={pos.y} delay={0} />
+              ))}
+            </AnimatePresence>
           </div>
           
           {/* Vital Signs Display */}
@@ -872,13 +1110,14 @@ export default function VisualHero() {
             <div className="text-center px-4">
               <motion.h1
                 className="text-5xl sm:text-6xl md:text-8xl font-bold text-hospital-mint mb-6 sm:mb-8 px-4"
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
+                initial={{ scale: 0, rotate: -180, opacity: 0 }}
+                animate={{ scale: 1, rotate: 0, opacity: 1 }}
                 transition={{ 
-                  duration: 1.5,
+                  duration: 1.2,
                   type: "spring",
-                  damping: 12,
-                  stiffness: 100
+                  damping: 15,
+                  stiffness: 80,
+                  opacity: { duration: 0.6 }
                 }}
                 style={{
                   textShadow: `
@@ -887,8 +1126,8 @@ export default function VisualHero() {
                     0 0 90px rgba(78, 205, 196, 0.2),
                     0 0 120px rgba(78, 205, 196, 0.1)
                   `,
-                  willChange: 'transform',
-                  transform: 'translate3d(0, 0, 0)'
+                  willChange: 'transform, opacity',
+                  transform: 'translateZ(0)'
                 }}
               >
                 THANK YOU
