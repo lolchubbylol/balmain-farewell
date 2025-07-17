@@ -24,7 +24,7 @@ const VisualSignatures: React.FC = () => {
       subtitle: "The Only Female Student Nurse",
       color: "#FF6B6B",
       signature: "M20,45 Q35,25 50,45 Q65,65 80,45 Q95,25 110,45 L130,40",
-      funFact: "Outnumbered but never outmatched"
+      funFact: "Keeps the boys in check since day one"
     },
     {
       name: "Sonny",
@@ -38,7 +38,7 @@ const VisualSignatures: React.FC = () => {
       subtitle: "The Nice Guy™",
       color: "#FFD93D",
       signature: "M25,50 Q40,35 55,50 Q70,65 85,50 Q100,35 115,50 L125,45",
-      funFact: "Actually the nicest guy™ (certified)"
+      funFact: "The chill one™ (patent pending)"
     }
   ];
 
