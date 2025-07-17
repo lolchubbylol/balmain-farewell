@@ -17,28 +17,28 @@ const VisualSignatures: React.FC = () => {
       subtitle: "The One Who Asked Too Many Questions",
       color: "#4A90E2",
       signature: "M20,50 Q40,30 60,50 T100,50 Q120,35 140,50",
-      funFact: "Lives on meal replacement powder"
+      funFact: "Survives on Mia's worst nightmare: meal powder"
     },
     {
       name: "Jolia", 
       subtitle: "The Only Female Student Nurse",
       color: "#FF6B6B",
       signature: "M20,45 Q35,25 50,45 Q65,65 80,45 Q95,25 110,45 L130,40",
-      funFact: "Coffee consumed: ∞"
+      funFact: "Carries team morale + infinite coffee supply"
     },
     {
       name: "Sonny",
       subtitle: "The Rule Follower",
       color: "#4ECDC4", 
       signature: "M15,50 Q30,30 45,50 Q60,70 75,50 Q90,30 105,50 Q120,50 135,45",
-      funFact: "Follows rules to the letter"
+      funFact: "Actually reads the medication leaflets"
     },
     {
       name: "Gabrielle",
       subtitle: "The Nice Guy™",
       color: "#FFD93D",
       signature: "M25,50 Q40,35 55,50 Q70,65 85,50 Q100,35 115,50 L125,45",
-      funFact: "Certified cool & nice guy"
+      funFact: "Too nice to tell you your BP technique is wrong"
     }
   ];
 
@@ -187,22 +187,22 @@ const VisualSignatures: React.FC = () => {
                 >
                   {index === 0 && (
                     <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-500/20 text-blue-400 text-[10px] sm:text-xs rounded">
-                      Most Curious
+                      Question Champion
                     </span>
                   )}
                   {index === 1 && (
                     <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-red-500/20 text-red-400 text-[10px] sm:text-xs rounded">
-                      Caffeine Champion
+                      Solo Female Warrior
                     </span>
                   )}
                   {index === 2 && (
                     <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-cyan-500/20 text-cyan-400 text-[10px] sm:text-xs rounded">
-                      Note Ninja
+                      Policy Expert
                     </span>
                   )}
                   {index === 3 && (
                     <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-yellow-500/20 text-yellow-400 text-[10px] sm:text-xs rounded">
-                      Punctuality Pro
+                      Mr. Nice Guy™
                     </span>
                   )}
                 </motion.div>
@@ -219,13 +219,13 @@ const VisualSignatures: React.FC = () => {
           transition={{ delay: 1.5 }}
         >
           <p className="text-sm sm:text-base md:text-lg text-white mb-1 sm:mb-2">
-            Thanks for putting up with us
+            Thanks for tolerating our endless questions
           </p>
           <p className="text-xs sm:text-sm text-gray-500">
-            We promise we were taking notes during the day
+            Professional hand sanitizer dispensers by day
           </p>
           <p className="text-xs text-gray-600 mt-2 sm:mt-4">
-            (During late hours we may have dwadled a bit...)
+            3am meal-replacement-powder critics by night
           </p>
         </motion.div>
         </div>

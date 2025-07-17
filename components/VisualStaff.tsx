@@ -26,26 +26,26 @@ const VisualStaff: React.FC = () => {
     },
     {
       title: "Simone Stakes",
-      subtitle: "Buddy Nurse",
+      subtitle: "High-Steaks Nursing",
       color: "#4ECDC4",
-      icon: "🤝",
-      description: "Always there when we needed guidance",
+      icon: "🥩",
+      description: "Raising the steaks in patient care (sorry Simone!)",
       animation: { scale: [1, 1.05, 1], transition: { duration: 2, repeat: Infinity } }
     },
     {
       title: "Mercia Healey",
-      subtitle: "Making Old School Cool Again!",
+      subtitle: "The Chocolate Dealer",
       color: "#FFD93D",
       icon: "🍫",
-      description: "Thanks for the chocolates & food - basically kept me alive!",
+      description: "My survival sponsor - will work for Tim Tams",
       animation: { x: [-2, 2, -2], transition: { duration: 0.5, repeat: Infinity } }
     },
     {
       title: "Deepa Gurung",
-      subtitle: "The AIN",
+      subtitle: "The AIN-vincible",
       color: "#9B59B6",
-      icon: "🌟",
-      description: "Supporting care with dedication and warmth",
+      icon: "💪",
+      description: "Works harder than all of us combined (while smiling)",
       animation: { rotate: [0, 360], transition: { duration: 3, repeat: Infinity, ease: "linear" } }
     },
     {
@@ -58,18 +58,18 @@ const VisualStaff: React.FC = () => {
     },
     {
       title: "Cinthia Viana Guanaif",
-      subtitle: "Portuguese Speaker 🇵🇹",
+      subtitle: "A Enfermeira Misteriosa",
       color: "#E74C3C",
-      icon: "💃",
-      description: "Obrigada pela paciência! (Mercia diz que você tem um sugar daddy 😉)",
+      icon: "💎",
+      description: "Quem paga as contas do carro novo? 🤔 Pergunta pra Mercia...",
       animation: { scale: [1, 1.1, 1], x: [-5, 5, -5], transition: { duration: 2.5, repeat: Infinity } }
     },
     {
       title: "Mia Yan",
-      subtitle: "The AIN Who Cares",
+      subtitle: "Nutritional Therapist (Unofficial)",
       color: "#FF6EC7",
       icon: "🥗",
-      description: "Thanks for telling me to eat real food instead of meal replacement powder!",
+      description: "\"That powder is NOT food Nathan!\" - Every. Single. Day.",
       animation: { y: [0, -5, 0], rotate: [0, 5, -5, 0], transition: { duration: 2, repeat: Infinity } }
     }
   ];
