@@ -682,13 +682,7 @@ export default function VisualHero() {
           setShowThankYou(true);
         }, 1500);
         
-        // Loop the animation after a delay
-        setTimeout(() => {
-          startTime = Date.now();
-          setIsMorphing(false);
-          setShowThankYou(false);
-          animationRef.current = requestAnimationFrame(drawEKG);
-        }, 4000);
+        // Don't loop - let it stay at the end
       }
     };
 
