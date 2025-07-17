@@ -3,71 +3,86 @@
 import { useEffect, useRef, useState, memo, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useSpring, useTransform, useMotionValue } from 'framer-motion';
 
-// Medical symbol component with smooth continuous floating
-const MedicalSymbol = memo(({ type, delay = 0, x = 0, y = 0 }: { type: 'stethoscope' | 'pill' | 'syringe' | 'thermometer' | 'cross'; delay?: number; x?: number; y?: number }) => {
-  const uniqueId = `med-${type}-${x}-${y}`;
+// Orbital particle system for medical theme visualization
+const OrbitalParticles = memo(() => {
+  const [time, setTime] = useState(0);
+  const particleCount = 20;
   
-  // Use stable random values based on position
-  const floatDuration = useMemo(() => 20 + (x % 10), [x]);
-  const driftAmount = useMemo(() => 40 + (y % 40), [y]);
-  const rotationSpeed = useMemo(() => 0.5 + ((x + y) % 10) / 10, [x, y]);
+  useEffect(() => {
+    let animationId: number;
+    const animate = () => {
+      setTime(t => t + 0.008);
+      animationId = requestAnimationFrame(animate);
+    };
+    animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, []);
   
-  const symbols = {
-    stethoscope: (
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-        <path d="M20 35C25 35 29 31 29 26V15C29 10 25 6 20 6C15 6 11 10 11 15V26C11 31 15 35 20 35Z" stroke="#4ECDC4" strokeWidth="2"/>
-        <path d="M11 15H8C7 15 6 14 6 13C6 12 7 11 8 11H11" stroke="#4ECDC4" strokeWidth="2"/>
-        <path d="M29 15H32C33 15 34 14 34 13C34 12 33 11 32 11H29" stroke="#4ECDC4" strokeWidth="2"/>
-        <circle cx="20" cy="26" r="3" fill="#4ECDC4"/>
-      </svg>
-    ),
-    pill: (
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-        <rect x="10" y="15" width="20" height="10" rx="5" stroke="#FF6B6B" strokeWidth="2"/>
-        <line x1="20" y1="15" x2="20" y2="25" stroke="#FF6B6B" strokeWidth="2"/>
-      </svg>
-    ),
-    syringe: (
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-        <rect x="15" y="10" width="10" height="20" stroke="#00843D" strokeWidth="2"/>
-        <path d="M15 10L25 10L20 5L15 10Z" fill="#00843D"/>
-        <line x1="20" y1="30" x2="20" y2="35" stroke="#00843D" strokeWidth="2"/>
-      </svg>
-    ),
-    thermometer: (
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-        <rect x="18" y="5" width="4" height="25" rx="2" stroke="#FFCC00" strokeWidth="2"/>
-        <circle cx="20" cy="32" r="4" stroke="#FFCC00" strokeWidth="2"/>
-        <line x1="20" y1="28" x2="20" y2="32" stroke="#FF6B6B" strokeWidth="2"/>
-      </svg>
-    ),
-    cross: (
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-        <rect x="15" y="5" width="10" height="30" fill="#FF0000"/>
-        <rect x="5" y="15" width="30" height="10" fill="#FF0000"/>
-      </svg>
-    )
-  };
+  const particles = useMemo(() => {
+    return Array.from({ length: particleCount }, (_, i) => {
+      const layer = Math.floor(i / 5); // 4 layers
+      const indexInLayer = i % 5;
+      const baseRadius = 200 + layer * 80;
+      const angle = (indexInLayer / 5) * Math.PI * 2;
+      const speed = 0.3 + layer * 0.1 + (i % 3) * 0.05;
+      const color = ['#4ECDC4', '#FF6B6B', '#00843D', '#FFCC00', '#FF0000'][i % 5];
+      const size = 4 + (layer % 2) * 2;
+      const pulsePhase = i * 0.3;
+      const orbitTilt = layer * 15; // Different tilt for each layer
+      
+      return { baseRadius, angle, speed, color, size, pulsePhase, orbitTilt, layer };
+    });
+  }, [particleCount]);
   
   return (
-    <div
-      className="absolute pointer-events-none medical-symbol-float"
-      style={{
-        left: `${x}px`,
-        top: `${y}px`,
-        animation: `medicalFloat ${floatDuration}s ${delay}s infinite ease-in-out`,
-        '--drift': `${driftAmount}px`,
-        '--rotation': `${rotationSpeed}`,
-      } as React.CSSProperties}
-    >
-      <div className="opacity-60">
-        {symbols[type]}
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      <div className="relative" style={{ transform: 'rotateX(20deg)' }}>
+        {particles.map((particle, i) => {
+          const currentAngle = particle.angle + time * particle.speed;
+          const x = Math.cos(currentAngle) * particle.baseRadius;
+          const y = Math.sin(currentAngle) * particle.baseRadius * 0.3;
+          const z = Math.sin(currentAngle * 2) * 30;
+          
+          const scale = 1 + Math.sin(time * 2 + particle.pulsePhase) * 0.3;
+          const opacity = 0.3 + Math.sin(time * 3 + particle.pulsePhase) * 0.2 + (particle.layer * 0.1);
+          
+          return (
+            <div
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                width: `${particle.size}px`,
+                height: `${particle.size}px`,
+                backgroundColor: particle.color,
+                transform: `translate3d(${x}px, ${y}px, ${z}px) scale(${scale})`,
+                opacity,
+                boxShadow: `0 0 ${particle.size * 3}px ${particle.color}`,
+                willChange: 'transform, opacity',
+                transformStyle: 'preserve-3d',
+              }}
+            />
+          );
+        })}
+        
+        {/* Center medical cross */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <div 
+            className="relative"
+            style={{
+              transform: `rotate(${time * 20}deg) scale(${1 + Math.sin(time * 2) * 0.1})`,
+              opacity: 0.6,
+            }}
+          >
+            <div className="absolute w-16 h-4 bg-red-500 rounded-sm" style={{ top: '-2px', left: '-32px' }} />
+            <div className="absolute w-4 h-16 bg-red-500 rounded-sm" style={{ top: '-32px', left: '-2px' }} />
+          </div>
+        </div>
       </div>
     </div>
   );
 });
 
-MedicalSymbol.displayName = 'MedicalSymbol';
+OrbitalParticles.displayName = 'OrbitalParticles';
 
 // DNA Helix Component
 const DNAHelix = memo(() => {
@@ -354,28 +369,6 @@ const ParticleField = memo(() => {
           transform: translate3d(0, 0, 0);
         }
         
-        @keyframes medicalFloat {
-          0% {
-            transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
-          }
-          25% {
-            transform: translate3d(calc(var(--drift) * 0.5), -30px, 0) rotate(calc(90deg * var(--rotation))) scale(1.1);
-          }
-          50% {
-            transform: translate3d(var(--drift), -50px, 0) rotate(calc(180deg * var(--rotation))) scale(1);
-          }
-          75% {
-            transform: translate3d(calc(var(--drift) * 0.5), -30px, 0) rotate(calc(270deg * var(--rotation))) scale(1.1);
-          }
-          100% {
-            transform: translate3d(0, 0, 0) rotate(calc(360deg * var(--rotation))) scale(1);
-          }
-        }
-        
-        .medical-symbol-float {
-          will-change: transform;
-          transform-origin: center;
-        }
       `}</style>
       {particles.map((particle) => (
         <div
@@ -685,8 +678,15 @@ export default function VisualHero() {
         setIsMorphing(true);
         setTimeout(() => {
           setShowThankYou(true);
-          clearInterval(heartRateInterval);
         }, 1500);
+        
+        // Loop the animation after a delay
+        setTimeout(() => {
+          startTime = Date.now();
+          setIsMorphing(false);
+          setShowThankYou(false);
+          animationRef.current = requestAnimationFrame(drawEKG);
+        }, 4000);
       }
     };
 
@@ -702,7 +702,6 @@ export default function VisualHero() {
 
   const isMobile = windowWidth <= 768;
   const leafCount = isMobile ? 8 : 20; // Reduce leaves on mobile
-  const medicalSymbolCount = isMobile ? 5 : 12;
   
   // Get current date/time
   const currentDate = new Date();
@@ -778,25 +777,8 @@ export default function VisualHero() {
         ))}
       </div>
       
-      {/* Floating Medical Symbols */}
-      <div className="absolute inset-0 pointer-events-none">
-        {useMemo(() => {
-          const types: Array<'stethoscope' | 'pill' | 'syringe' | 'thermometer' | 'cross'> = ['stethoscope', 'pill', 'syringe', 'thermometer', 'cross'];
-          return [...Array(medicalSymbolCount)].map((_, i) => {
-            const x = Math.random() * windowWidth;
-            const y = Math.random() * windowHeight;
-            return (
-              <MedicalSymbol
-                key={`med-${i}`}
-                type={types[i % types.length]}
-                delay={i * 2}
-                x={x}
-                y={y}
-              />
-            );
-          });
-        }, [medicalSymbolCount, windowWidth, windowHeight])}
-      </div>
+      {/* Orbital Medical Particle System */}
+      <OrbitalParticles />
 
       {/* Medical Monitor Frame */}
       <div 
