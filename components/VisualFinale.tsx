@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Star } from 'lucide-react';
 
-// Sydney Opera House component
-const OperaHouse = () => (
+// Memoized Sydney Opera House component
+const OperaHouse = memo(() => (
   <svg width="800" height="400" viewBox="0 0 800 400" className="w-full h-full">
     <defs>
       <linearGradient id="operaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -25,48 +25,93 @@ const OperaHouse = () => (
       <path d="M 100 0 Q 125 -100, 150 0" fill="url(#operaGradient)" opacity="0.5" />
     </g>
   </svg>
-);
+));
 
-// Floating eucalyptus leaf
-const FloatingLeaf = ({ delay = 0, startX = 0, duration = 15 }) => (
-  <motion.div
-    className="absolute pointer-events-none"
-    initial={{ 
-      x: startX,
-      y: -100,
-      rotate: 0,
-      opacity: 0 
-    }}
-    animate={{ 
-      x: startX + (Math.random() - 0.5) * 200,
-      y: window.innerHeight + 100,
-      rotate: 360,
-      opacity: [0, 0.8, 0.8, 0]
-    }}
-    transition={{
-      duration: duration,
-      delay: delay,
-      repeat: Infinity,
-      ease: "linear"
-    }}
-  >
-    <svg width="50" height="70" viewBox="0 0 40 60" fill="none">
-      <path
-        d="M20 5C12 8 5 18 5 30C5 42 12 52 20 55C28 52 35 42 35 30C35 18 28 8 20 5Z"
-        fill="#7FB069"
-        fillOpacity="0.9"
-      />
-      <path
-        d="M20 5V55"
-        stroke="#5A8A4C"
-        strokeWidth="2"
-      />
-    </svg>
-  </motion.div>
-);
+OperaHouse.displayName = 'OperaHouse';
 
-// Southern Cross constellation
-const SouthernCross = () => {
+// Memoized floating leaf component
+const FloatingLeaf = memo(({ delay = 0, startX = 0, duration = 15 }: {
+  delay: number;
+  startX: number;
+  duration: number;
+}) => {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  
+  if (isMobile) {
+    return (
+      <div
+        className="absolute pointer-events-none finale-leaf"
+        style={{
+          left: `${startX}px`,
+          animationDelay: `${delay}s`,
+          '--duration': `${duration}s`,
+          '--x-drift': `${(Math.random() - 0.5) * 200}px`,
+          willChange: 'transform',
+          transform: 'translate3d(0, 0, 0)'
+        } as React.CSSProperties}
+      >
+        <svg width="50" height="70" viewBox="0 0 40 60" fill="none">
+          <path
+            d="M20 5C12 8 5 18 5 30C5 42 12 52 20 55C28 52 35 42 35 30C35 18 28 8 20 5Z"
+            fill="#7FB069"
+            fillOpacity="0.9"
+          />
+          <path
+            d="M20 5V55"
+            stroke="#5A8A4C"
+            strokeWidth="2"
+          />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <motion.div
+      className="absolute pointer-events-none"
+      initial={{ 
+        x: startX,
+        y: -100,
+        rotate: 0,
+        opacity: 0 
+      }}
+      animate={{ 
+        x: startX + (Math.random() - 0.5) * 200,
+        y: window.innerHeight + 100,
+        rotate: 360,
+        opacity: [0, 0.8, 0.8, 0]
+      }}
+      transition={{
+        duration: duration,
+        delay: delay,
+        repeat: Infinity,
+        ease: "linear"
+      }}
+      style={{
+        willChange: 'transform',
+        transform: 'translate3d(0, 0, 0)'
+      }}
+    >
+      <svg width="50" height="70" viewBox="0 0 40 60" fill="none">
+        <path
+          d="M20 5C12 8 5 18 5 30C5 42 12 52 20 55C28 52 35 42 35 30C35 18 28 8 20 5Z"
+          fill="#7FB069"
+          fillOpacity="0.9"
+        />
+        <path
+          d="M20 5V55"
+          stroke="#5A8A4C"
+          strokeWidth="2"
+        />
+      </svg>
+    </motion.div>
+  );
+});
+
+FloatingLeaf.displayName = 'FloatingLeaf';
+
+// Memoized Southern Cross constellation
+const SouthernCross = memo(() => {
   const stars = [
     { x: 50, y: 50, size: 12, delay: 0 },
     { x: 80, y: 80, size: 16, delay: 0.2 },
@@ -109,23 +154,131 @@ const SouthernCross = () => {
       />
     </svg>
   );
-};
+});
+
+SouthernCross.displayName = 'SouthernCross';
+
+// Memoized name card component
+const NameCard = memo(({ name, index }: { name: string; index: number }) => (
+  <motion.div
+    className="bg-white/10 backdrop-blur-sm rounded-lg p-4"
+    initial={{ y: 20, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{ delay: 1.5 + index * 0.1 }}
+    whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+  >
+    <p className="text-white text-lg font-semibold">{name}</p>
+  </motion.div>
+));
+
+NameCard.displayName = 'NameCard';
 
 export default function VisualFinale() {
   const [showContent, setShowContent] = useState(false);
   const [easterEggClicks, setEasterEggClicks] = useState(0);
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const [showHearts, setShowHearts] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1920);
+  
+  const isMobile = windowWidth <= 768;
+  const leafCount = isMobile ? 10 : 20;
+  const heartCount = isMobile ? 15 : 30;
+  const sparkleCount = isMobile ? 25 : 50;
 
   useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    
     setTimeout(() => setShowContent(true), 500);
     setTimeout(() => setShowHearts(true), 2000);
+    
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const names = useMemo(() => ['Nathan', 'Jolia', 'Sonny', 'Gabrielle'], []);
+
+  // Generate leaf positions once
+  const leafPositions = useMemo(() => 
+    Array.from({ length: leafCount }, (_, i) => ({
+      id: i,
+      delay: i * 1.5,
+      startX: Math.random() * windowWidth,
+      duration: 15 + Math.random() * 10
+    })), [leafCount, windowWidth]
+  );
+
+  // Generate heart positions once
+  const heartPositions = useMemo(() => 
+    Array.from({ length: heartCount }, (_, i) => ({
+      id: i,
+      x: Math.random() * windowWidth,
+      size: 20 + Math.random() * 20,
+      duration: 8 + Math.random() * 4,
+      delay: Math.random() * 5
+    })), [heartCount, windowWidth]
+  );
+
+  // Generate sparkle positions once
+  const sparklePositions = useMemo(() => 
+    Array.from({ length: sparkleCount }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      delay: Math.random() * 5
+    })), [sparkleCount]
+  );
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-[#001a33] via-[#002244] to-[#003366] overflow-hidden">
+      <style jsx global>{`
+        @keyframes finale-leaf-float {
+          0% {
+            transform: translate3d(0, -100px, 0) rotate(0deg);
+            opacity: 0;
+          }
+          20% {
+            opacity: 0.8;
+          }
+          80% {
+            opacity: 0.8;
+          }
+          100% {
+            transform: translate3d(var(--x-drift, 0px), calc(100vh + 200px), 0) rotate(360deg);
+            opacity: 0;
+          }
+        }
+        
+        .finale-leaf {
+          animation: finale-leaf-float var(--duration, 15s) linear infinite;
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
+        }
+        
+        @keyframes heart-float {
+          0% {
+            transform: translate3d(0, 100vh, 0) scale(0);
+          }
+          20% {
+            transform: translate3d(var(--x-drift, 0px), 80vh, 0) scale(1);
+          }
+          80% {
+            transform: translate3d(var(--x-drift, 0px), 20vh, 0) scale(1);
+          }
+          100% {
+            transform: translate3d(var(--x-drift, 0px), -100px, 0) scale(0);
+          }
+        }
+        
+        .floating-heart {
+          animation: heart-float var(--duration, 8s) ease-out infinite;
+          animation-delay: var(--delay, 0s);
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
+        }
+      `}</style>
+
       {/* Sydney Opera House silhouette */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 opacity-20">
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 opacity-20 pointer-events-none">
         <OperaHouse />
       </div>
 
@@ -134,12 +287,12 @@ export default function VisualFinale() {
 
       {/* Floating eucalyptus leaves */}
       <div className="absolute inset-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        {leafPositions.map((leaf) => (
           <FloatingLeaf 
-            key={i} 
-            delay={i * 1.5} 
-            startX={Math.random() * window.innerWidth}
-            duration={15 + Math.random() * 10}
+            key={leaf.id} 
+            delay={leaf.delay} 
+            startX={leaf.startX}
+            duration={leaf.duration}
           />
         ))}
       </div>
@@ -166,7 +319,9 @@ export default function VisualFinale() {
                   duration: 1.5
                 }}
                 style={{
-                  textShadow: '0 0 30px rgba(255, 215, 0, 0.5), 0 0 60px rgba(255, 215, 0, 0.3)'
+                  textShadow: '0 0 30px rgba(255, 215, 0, 0.5), 0 0 60px rgba(255, 215, 0, 0.3)',
+                  willChange: 'transform',
+                  transform: 'translate3d(0, 0, 0)'
                 }}
               >
                 THANK YOU
@@ -201,17 +356,8 @@ export default function VisualFinale() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.5, stagger: 0.1 }}
               >
-                {['Nathan', 'Jolia', 'Sonny', 'Gabrielle'].map((name, i) => (
-                  <motion.div
-                    key={name}
-                    className="bg-white/10 backdrop-blur-sm rounded-lg p-4"
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 1.5 + i * 0.1 }}
-                    whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
-                  >
-                    <p className="text-white text-lg font-semibold">{name}</p>
-                  </motion.div>
+                {names.map((name, i) => (
+                  <NameCard key={name} name={name} index={i} />
                 ))}
               </motion.div>
 
@@ -233,51 +379,80 @@ export default function VisualFinale() {
         )}
       </AnimatePresence>
 
-      {/* Animated hearts */}
+      {/* Animated hearts - CSS animation on mobile */}
       <AnimatePresence>
         {showHearts && (
           <div className="absolute inset-0 pointer-events-none">
-            {[...Array(30)].map((_, i) => (
-              <motion.div
-                key={`heart-${i}`}
-                className="absolute"
-                initial={{ 
-                  x: Math.random() * window.innerWidth,
-                  y: window.innerHeight + 50,
-                  scale: 0
-                }}
-                animate={{ 
-                  y: -100,
-                  scale: [0, 1, 1, 0],
-                  x: `+=${(Math.random() - 0.5) * 200}`
-                }}
-                transition={{
-                  duration: 8 + Math.random() * 4,
-                  delay: Math.random() * 5,
-                  repeat: Infinity,
-                  ease: "easeOut"
-                }}
-              >
-                <Heart 
-                  className="text-red-500 fill-red-500" 
-                  size={20 + Math.random() * 20}
-                  style={{ opacity: 0.7 }}
-                />
-              </motion.div>
-            ))}
+            {heartPositions.map((heart) => {
+              if (isMobile) {
+                return (
+                  <div
+                    key={`heart-${heart.id}`}
+                    className="absolute floating-heart"
+                    style={{
+                      left: `${heart.x}px`,
+                      '--x-drift': `${(Math.random() - 0.5) * 200}px`,
+                      '--duration': `${heart.duration}s`,
+                      '--delay': `${heart.delay}s`
+                    } as React.CSSProperties}
+                  >
+                    <Heart 
+                      className="text-red-500 fill-red-500" 
+                      size={heart.size}
+                      style={{ opacity: 0.7 }}
+                    />
+                  </div>
+                );
+              }
+
+              return (
+                <motion.div
+                  key={`heart-${heart.id}`}
+                  className="absolute"
+                  initial={{ 
+                    x: heart.x,
+                    y: windowWidth + 50,
+                    scale: 0
+                  }}
+                  animate={{ 
+                    y: -100,
+                    scale: [0, 1, 1, 0],
+                    x: heart.x + (Math.random() - 0.5) * 200
+                  }}
+                  transition={{
+                    duration: heart.duration,
+                    delay: heart.delay,
+                    repeat: Infinity,
+                    ease: "easeOut"
+                  }}
+                  style={{
+                    willChange: 'transform',
+                    transform: 'translate3d(0, 0, 0)'
+                  }}
+                >
+                  <Heart 
+                    className="text-red-500 fill-red-500" 
+                    size={heart.size}
+                    style={{ opacity: 0.7 }}
+                  />
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </AnimatePresence>
 
       {/* Sparkle effect */}
       <div className="absolute inset-0 pointer-events-none">
-        {[...Array(50)].map((_, i) => (
+        {sparklePositions.map((sparkle) => (
           <motion.div
-            key={`sparkle-${i}`}
+            key={`sparkle-${sparkle.id}`}
             className="absolute w-1 h-1 bg-white rounded-full"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              left: `${sparkle.left}%`,
+              top: `${sparkle.top}%`,
+              willChange: 'transform, opacity',
+              transform: 'translate3d(0, 0, 0)'
             }}
             animate={{
               opacity: [0, 1, 0],
@@ -286,7 +461,7 @@ export default function VisualFinale() {
             transition={{
               duration: 3,
               repeat: Infinity,
-              delay: Math.random() * 5,
+              delay: sparkle.delay,
               ease: "easeInOut"
             }}
           />

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, memo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Complex eucalyptus leaf with veins
-const EucalyptusLeaf = ({ delay = 0, x = 0 }) => {
+// Memoized eucalyptus leaf component with CSS animation fallback for mobile
+const EucalyptusLeaf = memo(({ delay = 0, x = 0 }) => {
   const leafPath = "M20 5C12 8 5 18 5 30C5 42 12 52 20 55C28 52 35 42 35 30C35 18 28 8 20 5Z";
   const veinPaths = [
     "M20 10L20 50",
@@ -13,6 +13,37 @@ const EucalyptusLeaf = ({ delay = 0, x = 0 }) => {
     "M20 35L14 40",
     "M20 35L26 40"
   ];
+  
+  // Use CSS animation on mobile for better performance
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  
+  if (isMobile) {
+    return (
+      <div 
+        className="absolute pointer-events-none floating-leaf"
+        style={{
+          left: `${x}px`,
+          animationDelay: `${delay}s`,
+          willChange: 'transform',
+          transform: 'translate3d(0, 0, 0)'
+        }}
+      >
+        <svg width="40" height="60" viewBox="0 0 40 60" fill="none">
+          <defs>
+            <linearGradient id={`leaf-${delay}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#7FB069" stopOpacity="0.6"/>
+              <stop offset="50%" stopColor="#5A8A4C" stopOpacity="0.8"/>
+              <stop offset="100%" stopColor="#4A7A3C" stopOpacity="0.6"/>
+            </linearGradient>
+          </defs>
+          <path d={leafPath} fill={`url(#leaf-${delay})`}/>
+          {veinPaths.map((path, i) => (
+            <path key={i} d={path} stroke="#4A7A3C" strokeWidth="0.5" opacity="0.5"/>
+          ))}
+        </svg>
+      </div>
+    );
+  }
   
   return (
     <motion.div
@@ -35,6 +66,10 @@ const EucalyptusLeaf = ({ delay = 0, x = 0 }) => {
         repeat: Infinity,
         ease: "linear"
       }}
+      style={{
+        willChange: 'transform',
+        transform: 'translate3d(0, 0, 0)'
+      }}
     >
       <svg width="40" height="60" viewBox="0 0 40 60" fill="none">
         <defs>
@@ -51,11 +86,16 @@ const EucalyptusLeaf = ({ delay = 0, x = 0 }) => {
       </svg>
     </motion.div>
   );
-};
+});
 
-// Complex particle system
-const ParticleField = () => {
-  const particles = Array.from({ length: 50 }, (_, i) => ({
+EucalyptusLeaf.displayName = 'EucalyptusLeaf';
+
+// Optimized particle field using CSS animations
+const ParticleField = memo(() => {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const particleCount = isMobile ? 20 : 50; // Reduce particles on mobile
+  
+  const particles = Array.from({ length: particleCount }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
     y: Math.random() * 100,
@@ -66,47 +106,139 @@ const ParticleField = () => {
 
   return (
     <div className="absolute inset-0 pointer-events-none">
+      <style jsx>{`
+        @keyframes particle-float {
+          0% {
+            transform: translate3d(0, 0, 0) scale(0);
+            opacity: 0;
+          }
+          50% {
+            transform: translate3d(var(--x-offset), -30px, 0) scale(1);
+            opacity: 1;
+          }
+          100% {
+            transform: translate3d(0, 0, 0) scale(0);
+            opacity: 0;
+          }
+        }
+        
+        .particle {
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
+        }
+      `}</style>
       {particles.map((particle) => (
-        <motion.div
+        <div
           key={particle.id}
-          className="absolute bg-hospital-mint rounded-full"
+          className="absolute bg-hospital-mint rounded-full particle"
           style={{
             left: `${particle.x}%`,
             top: `${particle.y}%`,
             width: particle.size,
             height: particle.size,
-          }}
-          animate={{
-            y: [0, -30, 0],
-            x: [0, Math.random() * 20 - 10, 0],
-            opacity: [0, 1, 0],
-            scale: [0, 1, 0]
-          }}
-          transition={{
-            duration: particle.duration,
-            repeat: Infinity,
-            delay: particle.delay,
-            ease: "easeInOut"
-          }}
+            animation: `particle-float ${particle.duration}s ${particle.delay}s infinite ease-in-out`,
+            '--x-offset': `${Math.random() * 20 - 10}px`
+          } as React.CSSProperties}
         />
       ))}
     </div>
   );
-};
+});
+
+ParticleField.displayName = 'ParticleField';
+
+// Memoized Southern Cross component
+const SouthernCross = memo(() => (
+  <div className="absolute inset-0">
+    <svg className="absolute top-0 right-0 w-1/3 h-1/2" viewBox="0 0 300 300">
+      <defs>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      
+      {/* Constellation lines */}
+      <motion.path
+        d="M150 60 L160 75 L180 66 L165 90 L144 72"
+        stroke="rgba(255, 255, 255, 0.3)"
+        strokeWidth="1"
+        fill="none"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: 1 }}
+        transition={{ duration: 3, delay: 1 }}
+      />
+      
+      {/* Stars */}
+      {[
+        { x: 150, y: 60, size: 3 },
+        { x: 160, y: 75, size: 4 },
+        { x: 180, y: 66, size: 3 },
+        { x: 165, y: 90, size: 3 },
+        { x: 144, y: 72, size: 2.5 },
+      ].map((star, i) => (
+        <motion.circle
+          key={i}
+          cx={star.x}
+          cy={star.y}
+          r={star.size}
+          fill="white"
+          filter="url(#glow)"
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ 
+            opacity: [0, 1, 0.7, 1],
+            scale: 1 
+          }}
+          transition={{ 
+            delay: i * 0.2,
+            duration: 2,
+            opacity: { repeat: Infinity, duration: 3 + i * 0.5 }
+          }}
+        />
+      ))}
+    </svg>
+  </div>
+));
+
+SouthernCross.displayName = 'SouthernCross';
 
 export default function VisualHero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showThankYou, setShowThankYou] = useState(false);
   const animationRef = useRef<number>();
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1920);
+  const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 1080);
 
+  // Optimized resize handler with debounce
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setWindowWidth(window.innerWidth);
+        setWindowHeight(window.innerHeight);
+      }, 150);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  // Optimized EKG animation
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false }); // Disable alpha for better performance
     if (!ctx) return;
 
-    canvas.width = window.innerWidth;
+    canvas.width = windowWidth;
     canvas.height = 400;
 
     let progress = 0;
@@ -115,7 +247,7 @@ export default function VisualHero() {
     const startTime = Date.now();
 
     // Create control points for smooth EKG curve
-    const createEKGPath = (progress: number) => {
+    const createEKGPath = useCallback((progress: number) => {
       const points = [];
       const width = canvas.width;
       const height = canvas.height;
@@ -173,7 +305,7 @@ export default function VisualHero() {
       }
       
       return points;
-    };
+    }, []);
 
     const drawEKG = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -195,12 +327,15 @@ export default function VisualHero() {
 
       const points = createEKGPath(progress);
       
-      // Draw multiple layers for depth
-      for (let layer = 0; layer < 3; layer++) {
+      // Draw fewer layers on mobile
+      const isMobile = windowWidth <= 768;
+      const layers = isMobile ? 1 : 3;
+      
+      for (let layer = 0; layer < layers; layer++) {
         ctx.strokeStyle = gradient;
         ctx.lineWidth = 4 - layer;
         ctx.globalAlpha = 1 - layer * 0.3;
-        ctx.shadowBlur = 40 - layer * 10;
+        ctx.shadowBlur = isMobile ? 20 : 40 - layer * 10;
         ctx.shadowColor = '#4ECDC4';
         
         ctx.beginPath();
@@ -227,8 +362,8 @@ export default function VisualHero() {
       
       ctx.globalAlpha = 1;
 
-      // Add glowing endpoint
-      if (progress < 1 && points.length > 0) {
+      // Add glowing endpoint (skip on mobile for performance)
+      if (!isMobile && progress < 1 && points.length > 0) {
         const lastPoint = points[points.length - 1];
         const glowGradient = ctx.createRadialGradient(lastPoint.x, lastPoint.y, 0, lastPoint.x, lastPoint.y, 20);
         glowGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
@@ -258,97 +393,68 @@ export default function VisualHero() {
 
     drawEKG();
 
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      drawEKG();
-    };
-
-    window.addEventListener('resize', handleResize);
     return () => {
-      window.removeEventListener('resize', handleResize);
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, []);
+  }, [createEKGPath, windowWidth]);
+
+  const isMobile = windowWidth <= 768;
+  const leafCount = isMobile ? 8 : 20; // Reduce leaves on mobile
 
   return (
     <div className="relative h-screen overflow-hidden bg-gradient-to-b from-hospital-dark via-[#0A1A1A] to-[#001525]">
+      <style jsx global>{`
+        @keyframes floating-leaf {
+          0% {
+            transform: translate3d(0, -100px, 0) rotate(0deg);
+            opacity: 0;
+          }
+          20% {
+            opacity: 0.8;
+          }
+          80% {
+            opacity: 0.8;
+          }
+          100% {
+            transform: translate3d(var(--x-drift, 50px), calc(100vh + 200px), 0) rotate(360deg);
+            opacity: 0;
+          }
+        }
+        
+        .floating-leaf {
+          animation: floating-leaf 20s linear infinite;
+          --x-drift: ${Math.random() * 200 - 100}px;
+        }
+      `}</style>
+
       {/* Complex background pattern */}
-      <div className="absolute inset-0 opacity-10">
+      <div className="absolute inset-0 opacity-10 pointer-events-none">
         <div className="absolute inset-0" style={{
           backgroundImage: `
             radial-gradient(circle at 20% 50%, rgba(78, 205, 196, 0.1) 0%, transparent 50%),
             radial-gradient(circle at 80% 80%, rgba(255, 204, 0, 0.1) 0%, transparent 50%),
             radial-gradient(circle at 40% 20%, rgba(0, 132, 61, 0.1) 0%, transparent 50%)
-          `
+          `,
+          willChange: 'transform',
+          transform: 'translate3d(0, 0, 0)'
         }} />
       </div>
 
-      {/* Southern Cross Constellation with connecting lines */}
-      <div className="absolute inset-0">
-        <svg className="absolute top-0 right-0 w-1/3 h-1/2" viewBox="0 0 300 300">
-          <defs>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-              <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-          </defs>
-          
-          {/* Constellation lines */}
-          <motion.path
-            d="M150 60 L160 75 L180 66 L165 90 L144 72"
-            stroke="rgba(255, 255, 255, 0.3)"
-            strokeWidth="1"
-            fill="none"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 3, delay: 1 }}
-          />
-          
-          {/* Stars */}
-          {[
-            { x: 150, y: 60, size: 3 },
-            { x: 160, y: 75, size: 4 },
-            { x: 180, y: 66, size: 3 },
-            { x: 165, y: 90, size: 3 },
-            { x: 144, y: 72, size: 2.5 },
-          ].map((star, i) => (
-            <motion.circle
-              key={i}
-              cx={star.x}
-              cy={star.y}
-              r={star.size}
-              fill="white"
-              filter="url(#glow)"
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ 
-                opacity: [0, 1, 0.7, 1],
-                scale: 1 
-              }}
-              transition={{ 
-                delay: i * 0.2,
-                duration: 2,
-                opacity: { repeat: Infinity, duration: 3 + i * 0.5 }
-              }}
-            />
-          ))}
-        </svg>
-      </div>
+      {/* Southern Cross Constellation */}
+      <SouthernCross />
 
       {/* Particle field */}
       <ParticleField />
 
       {/* Floating Eucalyptus Leaves */}
       <div className="absolute inset-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        {[...Array(leafCount)].map((_, i) => (
           <EucalyptusLeaf 
             key={i} 
             delay={i * 1.5} 
-            x={Math.random() * window.innerWidth}
+            x={Math.random() * windowWidth}
           />
         ))}
       </div>
@@ -357,6 +463,10 @@ export default function VisualHero() {
       <canvas
         ref={canvasRef}
         className="absolute top-1/2 -translate-y-1/2 opacity-90 z-10"
+        style={{
+          willChange: 'transform',
+          transform: 'translate3d(0, 0, 0)'
+        }}
       />
       
       {/* Thank You Text */}
@@ -384,7 +494,9 @@ export default function VisualHero() {
                     0 0 60px rgba(78, 205, 196, 0.3),
                     0 0 90px rgba(78, 205, 196, 0.2),
                     0 0 120px rgba(78, 205, 196, 0.1)
-                  `
+                  `,
+                  willChange: 'transform',
+                  transform: 'translate3d(0, 0, 0)'
                 }}
               >
                 THANK YOU
@@ -404,28 +516,30 @@ export default function VisualHero() {
                 </p>
               </motion.div>
 
-              {/* Complex geometric pattern instead of simple koala */}
-              <motion.div
-                className="absolute -bottom-20 right-10 hidden sm:block"
-                initial={{ scale: 0, rotate: -90 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ delay: 1.5, duration: 2, type: "spring" }}
-              >
-                <svg width="150" height="150" viewBox="0 0 150 150" className="opacity-20">
-                  <defs>
-                    <linearGradient id="geoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#4ECDC4" stopOpacity="0.5"/>
-                      <stop offset="100%" stopColor="#00843D" stopOpacity="0.5"/>
-                    </linearGradient>
-                  </defs>
-                  <g fill="url(#geoGrad)">
-                    <circle cx="75" cy="75" r="70" strokeWidth="2" stroke="#4ECDC4" fill="none"/>
-                    <polygon points="75,25 105,60 105,110 75,125 45,110 45,60" strokeWidth="1" stroke="#4ECDC4"/>
-                    <circle cx="75" cy="75" r="40" strokeWidth="1" stroke="#4ECDC4"/>
-                    <polygon points="75,55 90,75 75,95 60,75" />
-                  </g>
-                </svg>
-              </motion.div>
+              {/* Complex geometric pattern - hidden on mobile */}
+              {!isMobile && (
+                <motion.div
+                  className="absolute -bottom-20 right-10 hidden sm:block"
+                  initial={{ scale: 0, rotate: -90 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ delay: 1.5, duration: 2, type: "spring" }}
+                >
+                  <svg width="150" height="150" viewBox="0 0 150 150" className="opacity-20">
+                    <defs>
+                      <linearGradient id="geoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#4ECDC4" stopOpacity="0.5"/>
+                        <stop offset="100%" stopColor="#00843D" stopOpacity="0.5"/>
+                      </linearGradient>
+                    </defs>
+                    <g fill="url(#geoGrad)">
+                      <circle cx="75" cy="75" r="70" strokeWidth="2" stroke="#4ECDC4" fill="none"/>
+                      <polygon points="75,25 105,60 105,110 75,125 45,110 45,60" strokeWidth="1" stroke="#4ECDC4"/>
+                      <circle cx="75" cy="75" r="40" strokeWidth="1" stroke="#4ECDC4"/>
+                      <polygon points="75,55 90,75 75,95 60,75" />
+                    </g>
+                  </svg>
+                </motion.div>
+              )}
             </div>
           </motion.div>
         )}

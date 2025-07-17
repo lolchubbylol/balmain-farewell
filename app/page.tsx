@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import Navigation from '@/components/Navigation';
 
-// Dynamic imports
+// Dynamic imports with performance-optimized loading screens
 const VisualHero = dynamic(() => import('@/components/VisualHero'), {
   ssr: false,
   loading: () => (
@@ -56,8 +56,10 @@ export default function Home() {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const sections = [
+  // Memoize sections array
+  const sections = useMemo(() => [
     { 
       component: <VisualHero />, 
       name: "Welcome",
@@ -78,7 +80,19 @@ export default function Home() {
       name: "Thank You",
       duration: 10000 
     }
-  ];
+  ], []);
+
+  // Check if mobile on mount
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Handle section change
   const handleSectionChange = useCallback((index: number) => {
@@ -100,11 +114,6 @@ export default function Home() {
         case 'ArrowUp':
           handleSectionChange((currentSection - 1 + sections.length) % sections.length);
           break;
-        case ' ':
-          e.preventDefault();
-          // Remove auto-play toggle functionality
-          // setAutoPlay(!autoPlay);
-          break;
         case 'Escape':
           setIsMenuOpen(false);
           break;
@@ -122,19 +131,19 @@ export default function Home() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [currentSection, autoPlay, sections.length, handleSectionChange]);
+  }, [currentSection, sections.length, handleSectionChange]);
 
-  // Touch/swipe navigation for mobile
-  const handleTouchStart = (e: React.TouchEvent) => {
+  // Optimized touch handling for mobile
+  const handleTouchStartEvent = useCallback((e: React.TouchEvent) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
-  };
+  }, []);
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleTouchMoveEvent = useCallback((e: React.TouchEvent) => {
     setTouchEnd(e.targetTouches[0].clientX);
-  };
+  }, []);
 
-  const handleTouchEnd = () => {
+  const handleTouchEndEvent = useCallback(() => {
     if (!touchStart || !touchEnd) return;
     
     const distance = touchStart - touchEnd;
@@ -147,7 +156,7 @@ export default function Home() {
     if (isRightSwipe) {
       handleSectionChange((currentSection - 1 + sections.length) % sections.length);
     }
-  };
+  }, [touchStart, touchEnd, currentSection, sections.length, handleSectionChange]);
 
   // Auto-progression
   useEffect(() => {
@@ -167,28 +176,42 @@ export default function Home() {
     return () => clearInterval(timer);
   }, [autoPlay, currentSection, sections]);
 
-  // Initial loading (no auto-start)
+  // Initial loading
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setIsLoading(false);
       setAutoPlay(false); // Explicitly set to false on load
     }, 1500);
+    
+    return () => clearTimeout(timer);
   }, []);
 
-  // Scroll/swipe handling
+  // Optimized scroll/swipe handling
   useEffect(() => {
+    if (isMenuOpen) return;
+
     let touchStartY = 0;
     let touchStartX = 0;
     const threshold = 50;
+    let wheelTimeout: NodeJS.Timeout;
+    let isScrolling = false;
 
     const handleWheel = (e: WheelEvent) => {
-      if (isMenuOpen) return;
+      if (isMenuOpen || isMobile || isScrolling) return;
+      
+      e.preventDefault();
+      isScrolling = true;
       
       if (e.deltaY > threshold) {
         handleSectionChange((currentSection + 1) % sections.length);
       } else if (e.deltaY < -threshold) {
         handleSectionChange((currentSection - 1 + sections.length) % sections.length);
       }
+      
+      clearTimeout(wheelTimeout);
+      wheelTimeout = setTimeout(() => {
+        isScrolling = false;
+      }, 500); // Increased debounce time
     };
 
     const handleTouchStart = (e: TouchEvent) => {
@@ -216,27 +239,21 @@ export default function Home() {
       }
     };
 
-    // Debounced wheel handler
-    let wheelTimeout: NodeJS.Timeout;
-    const debouncedWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      clearTimeout(wheelTimeout);
-      wheelTimeout = setTimeout(() => handleWheel(e), 100);
-    };
-
     // Only add wheel listener on desktop
-    if (window.innerWidth > 768) {
-      window.addEventListener('wheel', debouncedWheel, { passive: false });
+    if (!isMobile) {
+      window.addEventListener('wheel', handleWheel, { passive: false });
     }
-    window.addEventListener('touchstart', handleTouchStart);
-    window.addEventListener('touchend', handleTouchEnd);
+    
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
-      window.removeEventListener('wheel', debouncedWheel);
+      window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchend', handleTouchEnd);
+      clearTimeout(wheelTimeout);
     };
-  }, [currentSection, isMenuOpen, sections.length, handleSectionChange]);
+  }, [currentSection, isMenuOpen, isMobile, sections.length, handleSectionChange]);
 
   if (isLoading) {
     return (
@@ -269,7 +286,12 @@ export default function Home() {
   }
 
   return (
-    <main className="relative bg-black min-h-screen overflow-hidden">
+    <main 
+      className="relative bg-black min-h-screen overflow-hidden"
+      onTouchStart={handleTouchStartEvent}
+      onTouchMove={handleTouchMoveEvent}
+      onTouchEnd={handleTouchEndEvent}
+    >
       {/* Navigation */}
       <Navigation
         sections={sections.map(s => s.name)}
@@ -279,7 +301,7 @@ export default function Home() {
         setIsMenuOpen={setIsMenuOpen}
       />
 
-      {/* Main Content */}
+      {/* Main Content with hardware acceleration */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSection}
@@ -288,12 +310,14 @@ export default function Home() {
           exit={{ opacity: 0, scale: 1.05 }}
           transition={{ duration: 0.5 }}
           className="absolute inset-0"
+          style={{
+            willChange: 'transform, opacity',
+            transform: 'translate3d(0, 0, 0)'
+          }}
         >
           {sections[currentSection].component}
         </motion.div>
       </AnimatePresence>
-
-      {/* Auto-play removed - no indicator needed */}
 
       {/* Navigation hint (shows briefly at start) */}
       <AnimatePresence>
@@ -306,7 +330,7 @@ export default function Home() {
             transition={{ delay: 3, duration: 1 }}
           >
             <p className="text-white/50 text-sm">
-              Use arrow keys or swipe to navigate
+              {isMobile ? 'Swipe to navigate' : 'Use arrow keys or scroll to navigate'}
             </p>
           </motion.div>
         )}
