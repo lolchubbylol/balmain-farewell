@@ -230,6 +230,65 @@ export default function VisualHero() {
     };
   }, []);
 
+  // Create control points for smooth EKG curve
+  const createEKGPath = useCallback((progress: number, width: number, height: number, time: number) => {
+    const points = [];
+    const centerY = height / 2;
+    
+    // Generate smooth EKG curve with proper continuity
+    for (let i = 0; i <= progress * 1000; i++) {
+      const x = (i / 1000) * width;
+      let y = centerY;
+      
+      const t = i / 1000;
+      
+      // Create realistic EKG pattern with smooth transitions
+      if (t < 0.4) {
+        // Baseline with subtle variation
+        y = centerY + Math.sin(t * 20) * 2 + Math.cos(t * 30) * 1;
+      } else if (t >= 0.4 && t < 0.45) {
+        // P wave (smooth bump)
+        const localT = (t - 0.4) / 0.05;
+        y = centerY - Math.sin(localT * Math.PI) * 30;
+      } else if (t >= 0.45 && t < 0.47) {
+        // PR segment
+        y = centerY + Math.sin(t * 40) * 2;
+      } else if (t >= 0.47 && t < 0.48) {
+        // Q wave (small dip)
+        const localT = (t - 0.47) / 0.01;
+        y = centerY + Math.sin(localT * Math.PI) * 15;
+      } else if (t >= 0.48 && t < 0.49) {
+        // R wave (sharp peak)
+        const localT = (t - 0.48) / 0.01;
+        y = centerY - Math.sin(localT * Math.PI) * 150 * Math.pow(1 - localT, 0.3);
+      } else if (t >= 0.49 && t < 0.5) {
+        // S wave (sharp dip)
+        const localT = (t - 0.49) / 0.01;
+        y = centerY + Math.sin(localT * Math.PI) * 180 * Math.pow(localT, 0.3);
+      } else if (t >= 0.5 && t < 0.52) {
+        // Return to baseline
+        const localT = (t - 0.5) / 0.02;
+        const baselineY = centerY + Math.sin(t * 20) * 2;
+        const sWaveEndY = centerY + 180;
+        y = sWaveEndY + (baselineY - sWaveEndY) * Math.pow(localT, 2);
+      } else if (t >= 0.52 && t < 0.58) {
+        // ST segment
+        y = centerY + Math.sin(t * 25) * 3 + Math.cos(t * 35) * 2;
+      } else if (t >= 0.58 && t < 0.63) {
+        // T wave (smooth bump)
+        const localT = (t - 0.58) / 0.05;
+        y = centerY - Math.sin(localT * Math.PI) * 35 * (1 + Math.sin(time * 0.005) * 0.1);
+      } else {
+        // Return to baseline with variation
+        y = centerY + Math.sin(t * 20) * 2 + Math.cos(t * 30) * 1;
+      }
+      
+      points.push({ x, y });
+    }
+    
+    return points;
+  }, []);
+
   // Optimized EKG animation
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -245,67 +304,6 @@ export default function VisualHero() {
     let time = 0;
     const animationDuration = 5000;
     const startTime = Date.now();
-
-    // Create control points for smooth EKG curve
-    const createEKGPath = useCallback((progress: number) => {
-      const points = [];
-      const width = canvas.width;
-      const height = canvas.height;
-      const centerY = height / 2;
-      
-      // Generate smooth EKG curve with proper continuity
-      for (let i = 0; i <= progress * 1000; i++) {
-        const x = (i / 1000) * width;
-        let y = centerY;
-        
-        const t = i / 1000;
-        
-        // Create realistic EKG pattern with smooth transitions
-        if (t < 0.4) {
-          // Baseline with subtle variation
-          y = centerY + Math.sin(t * 20) * 2 + Math.cos(t * 30) * 1;
-        } else if (t >= 0.4 && t < 0.45) {
-          // P wave (smooth bump)
-          const localT = (t - 0.4) / 0.05;
-          y = centerY - Math.sin(localT * Math.PI) * 30;
-        } else if (t >= 0.45 && t < 0.47) {
-          // PR segment
-          y = centerY + Math.sin(t * 40) * 2;
-        } else if (t >= 0.47 && t < 0.48) {
-          // Q wave (small dip)
-          const localT = (t - 0.47) / 0.01;
-          y = centerY + Math.sin(localT * Math.PI) * 15;
-        } else if (t >= 0.48 && t < 0.49) {
-          // R wave (sharp peak)
-          const localT = (t - 0.48) / 0.01;
-          y = centerY - Math.sin(localT * Math.PI) * 150 * Math.pow(1 - localT, 0.3);
-        } else if (t >= 0.49 && t < 0.5) {
-          // S wave (sharp dip)
-          const localT = (t - 0.49) / 0.01;
-          y = centerY + Math.sin(localT * Math.PI) * 180 * Math.pow(localT, 0.3);
-        } else if (t >= 0.5 && t < 0.52) {
-          // Return to baseline
-          const localT = (t - 0.5) / 0.02;
-          const baselineY = centerY + Math.sin(t * 20) * 2;
-          const sWaveEndY = centerY + 180;
-          y = sWaveEndY + (baselineY - sWaveEndY) * Math.pow(localT, 2);
-        } else if (t >= 0.52 && t < 0.58) {
-          // ST segment
-          y = centerY + Math.sin(t * 25) * 3 + Math.cos(t * 35) * 2;
-        } else if (t >= 0.58 && t < 0.63) {
-          // T wave (smooth bump)
-          const localT = (t - 0.58) / 0.05;
-          y = centerY - Math.sin(localT * Math.PI) * 35 * (1 + Math.sin(time * 0.005) * 0.1);
-        } else {
-          // Return to baseline with variation
-          y = centerY + Math.sin(t * 20) * 2 + Math.cos(t * 30) * 1;
-        }
-        
-        points.push({ x, y });
-      }
-      
-      return points;
-    }, []);
 
     const drawEKG = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -325,7 +323,7 @@ export default function VisualHero() {
       progress = Math.min(currentTime / animationDuration, 1);
       time = currentTime;
 
-      const points = createEKGPath(progress);
+      const points = createEKGPath(progress, canvas.width, canvas.height, time);
       
       // Draw fewer layers on mobile
       const isMobile = windowWidth <= 768;

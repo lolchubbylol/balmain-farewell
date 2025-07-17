@@ -197,6 +197,36 @@ const VisualSignatures: React.FC = () => {
           will-change: transform;
           transform: translate3d(0, 0, 0);
         }
+        
+        @keyframes kangaroo-hop {
+          0% {
+            transform: translate3d(-100px, 0, 0);
+          }
+          100% {
+            transform: translate3d(calc(100vw + 100px), 0, 0);
+          }
+        }
+        
+        @keyframes kangaroo-bounce {
+          0%, 100% {
+            transform: translateY(0) rotate(0deg);
+          }
+          50% {
+            transform: translateY(-30px) rotate(-10deg);
+          }
+        }
+        
+        .kangaroo-container {
+          animation: kangaroo-hop 20s linear infinite;
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
+        }
+        
+        .kangaroo-bounce {
+          animation: kangaroo-bounce 0.8s ease-in-out infinite;
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
+        }
       `}</style>
 
       {/* Subtle ambient effects */}
@@ -315,37 +345,6 @@ const VisualSignatures: React.FC = () => {
 
       {/* Bottom kangaroo animation - CSS animation on mobile */}
       <div className="absolute bottom-0 left-0 right-0 h-20 overflow-hidden pointer-events-none">
-        <style jsx>{`
-          @keyframes kangaroo-hop {
-            0% {
-              transform: translate3d(-100px, 0, 0);
-            }
-            100% {
-              transform: translate3d(calc(100vw + 100px), 0, 0);
-            }
-          }
-          
-          @keyframes kangaroo-bounce {
-            0%, 100% {
-              transform: translateY(0) rotate(0deg);
-            }
-            50% {
-              transform: translateY(-30px) rotate(-10deg);
-            }
-          }
-          
-          .kangaroo-container {
-            animation: kangaroo-hop 20s linear infinite;
-            will-change: transform;
-            transform: translate3d(0, 0, 0);
-          }
-          
-          .kangaroo-bounce {
-            animation: kangaroo-bounce 0.8s ease-in-out infinite;
-            will-change: transform;
-            transform: translate3d(0, 0, 0);
-          }
-        `}</style>
         
         {isMobile ? (
           <div className="absolute bottom-0 kangaroo-container">
