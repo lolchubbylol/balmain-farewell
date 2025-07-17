@@ -26,18 +26,18 @@ const VisualStaff: React.FC = () => {
     },
     {
       title: "Simone Stakes",
-      subtitle: "High-Steaks Nursing",
+      subtitle: "High Stakes in My Heart",
       color: "#4ECDC4",
-      icon: "🥩",
-      description: "Raising the steaks in patient care (sorry Simone!)",
+      icon: "💗",
+      description: "Every patient matters, every moment counts",
       animation: { scale: [1, 1.05, 1], transition: { duration: 2, repeat: Infinity } }
     },
     {
       title: "Mercia Healey",
-      subtitle: "The Chocolate Supplier",
+      subtitle: "Old School & Sweet",
       color: "#FFD93D",
       icon: "🍫",
-      description: "Nathan's survival sponsor - chocolate > meal powder",
+      description: "Traditional care with a chocolate-coated touch",
       animation: { x: [-2, 2, -2], transition: { duration: 0.5, repeat: Infinity } }
     },
     {
