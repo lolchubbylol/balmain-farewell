@@ -3,26 +3,11 @@
 import { useEffect, useRef, useState, memo, useCallback } from 'react';
 import { motion, AnimatePresence, useSpring, useTransform, useMotionValue } from 'framer-motion';
 
-// Medical symbol component with smooth continuous animation
+// Medical symbol component with 3D rotation
 const MedicalSymbol = memo(({ type, delay = 0, x = 0, y = 0 }: { type: 'stethoscope' | 'pill' | 'syringe' | 'thermometer' | 'cross'; delay?: number; x?: number; y?: number }) => {
-  const [progress, setProgress] = useState(0);
-  
-  useEffect(() => {
-    const duration = 15000 + Math.random() * 5000;
-    const startTime = Date.now() + delay * 1000;
-    let animationId: number;
-    
-    const animate = () => {
-      const now = Date.now();
-      const elapsed = now - startTime;
-      const t = (elapsed % duration) / duration;
-      setProgress(t);
-      animationId = requestAnimationFrame(animate);
-    };
-    
-    animationId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationId);
-  }, [delay]);
+  const motionValue = useMotionValue(0);
+  const springValue = useSpring(motionValue, { stiffness: 100, damping: 30 });
+  const rotateY = useTransform(springValue, [0, 1], [0, 360]);
   
   const symbols = {
     stethoscope: (
@@ -61,31 +46,41 @@ const MedicalSymbol = memo(({ type, delay = 0, x = 0, y = 0 }: { type: 'stethosc
     )
   };
   
-  // Calculate smooth positions based on progress
-  const currentY = y + Math.sin(progress * Math.PI * 2) * 30 - progress * 200;
-  const currentX = x + Math.sin(progress * Math.PI * 4) * 20;
-  const currentScale = 0.8 + Math.sin(progress * Math.PI * 6) * 0.2;
-  const currentOpacity = Math.max(0, Math.min(1, 0.5 + Math.sin(progress * Math.PI * 3) * 0.3 - progress * 0.5));
-  const currentRotation = progress * 360;
-  
-  // Reset when symbol goes off screen
-  if (currentY < -50) {
-    return null;
-  }
-  
   return (
-    <div
+    <motion.div
       className="absolute pointer-events-none"
+      initial={{ 
+        y,
+        x,
+        scale: 0,
+        opacity: 0
+      }}
+      animate={{ 
+        y: [y, y - 50, y - 40, y + 30, y + 20, y],
+        x: [x, x + 20, x + 15, x - 20, x - 15, x],
+        scale: [0, 1.2, 1.1, 1, 1, 1],
+        opacity: [0, 0.8, 1, 1, 0.8, 0],
+        rotateY: [0, 120, 240, 360]
+      }}
+      transition={{
+        duration: 15 + Math.random() * 5,
+        delay,
+        repeat: Infinity,
+        repeatDelay: Math.random() * 3,
+        ease: "easeInOut"
+      }}
       style={{
-        transform: `translate3d(${currentX}px, ${currentY}px, 0) scale(${currentScale}) rotate(${currentRotation}deg)`,
-        opacity: currentOpacity,
         perspective: 1000,
-        transformStyle: 'preserve-3d',
-        willChange: 'transform, opacity'
+        transformStyle: 'preserve-3d'
       }}
     >
-      {symbols[type]}
-    </div>
+      <motion.div
+        style={{ rotateY }}
+        className="transform-gpu"
+      >
+        {symbols[type]}
+      </motion.div>
+    </motion.div>
   );
 });
 
@@ -548,12 +543,12 @@ export default function VisualHero() {
       } else if (t >= 0.49 && t < 0.5) {
         // S wave (sharp dip)
         const localT = (t - 0.49) / 0.01;
-        y = centerY + Math.sin(localT * Math.PI) * 50 * Math.pow(localT, 0.3);
+        y = centerY + Math.sin(localT * Math.PI) * 180 * Math.pow(localT, 0.3);
       } else if (t >= 0.5 && t < 0.52) {
         // Return to baseline
         const localT = (t - 0.5) / 0.02;
         const baselineY = centerY + Math.sin(t * 20) * 2;
-        const sWaveEndY = centerY + 50;
+        const sWaveEndY = centerY + 180;
         y = sWaveEndY + (baselineY - sWaveEndY) * Math.pow(localT, 2);
       } else if (t >= 0.52 && t < 0.58) {
         // ST segment
@@ -696,6 +691,7 @@ export default function VisualHero() {
 
   const isMobile = windowWidth <= 768;
   const leafCount = isMobile ? 8 : 20; // Reduce leaves on mobile
+  const medicalSymbolCount = isMobile ? 5 : 12;
   
   // Get current date/time
   const currentDate = new Date();
@@ -771,7 +767,21 @@ export default function VisualHero() {
         ))}
       </div>
       
-      {/* Medical symbols removed to fix flickering */}
+      {/* Floating Medical Symbols */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(medicalSymbolCount)].map((_, i) => {
+          const types: Array<'stethoscope' | 'pill' | 'syringe' | 'thermometer' | 'cross'> = ['stethoscope', 'pill', 'syringe', 'thermometer', 'cross'];
+          return (
+            <MedicalSymbol
+              key={`med-${i}`}
+              type={types[i % types.length]}
+              delay={i * 2}
+              x={Math.random() * windowWidth}
+              y={Math.random() * windowHeight}
+            />
+          );
+        })}
+      </div>
 
       {/* Medical Monitor Frame */}
       <div 
