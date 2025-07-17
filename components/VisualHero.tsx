@@ -560,10 +560,12 @@ export default function VisualHero() {
       } else {
         // Return to baseline with smooth transition
         const baselineT = (t - 0.63) / (1 - 0.63);
-        const tWaveEndY = centerY - 35;
-        // Use cubic easing for smooth transition from T-wave to baseline
+        // T-wave ends at centerY when localT = 1 (sin(π) = 0)
+        const tWaveEndY = centerY;
+        // Use cubic easing for smooth transition
         const easedT = baselineT * baselineT * (3.0 - 2.0 * baselineT);
-        y = tWaveEndY * (1 - easedT) + centerY * easedT + Math.sin(t * 20) * 2 * easedT;
+        // Start from T-wave end position and smoothly transition to baseline with variation
+        y = tWaveEndY + Math.sin(t * 20) * 2 * easedT;
       }
       
       points.push({ x, y });
