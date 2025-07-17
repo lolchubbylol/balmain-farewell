@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, memo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Memoized eucalyptus leaf component with CSS animation fallback for mobile
-const EucalyptusLeaf = memo(({ delay = 0, x = 0 }) => {
+const EucalyptusLeaf = memo(({ delay = 0, x = 0 }: { delay?: number; x?: number }) => {
   const leafPath = "M20 5C12 8 5 18 5 30C5 42 12 52 20 55C28 52 35 42 35 30C35 18 28 8 20 5Z";
   const veinPaths = [
     "M20 10L20 50",
