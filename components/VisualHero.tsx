@@ -1,7 +1,238 @@
 "use client";
 
 import { useEffect, useRef, useState, memo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useSpring, useTransform, useMotionValue } from 'framer-motion';
+
+// Medical symbol component with 3D rotation
+const MedicalSymbol = memo(({ type, delay = 0, x = 0, y = 0 }: { type: 'stethoscope' | 'pill' | 'syringe' | 'thermometer' | 'cross'; delay?: number; x?: number; y?: number }) => {
+  const motionValue = useMotionValue(0);
+  const springValue = useSpring(motionValue, { stiffness: 100, damping: 30 });
+  const rotateY = useTransform(springValue, [0, 1], [0, 360]);
+  
+  const symbols = {
+    stethoscope: (
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <path d="M20 35C25 35 29 31 29 26V15C29 10 25 6 20 6C15 6 11 10 11 15V26C11 31 15 35 20 35Z" stroke="#4ECDC4" strokeWidth="2"/>
+        <path d="M11 15H8C7 15 6 14 6 13C6 12 7 11 8 11H11" stroke="#4ECDC4" strokeWidth="2"/>
+        <path d="M29 15H32C33 15 34 14 34 13C34 12 33 11 32 11H29" stroke="#4ECDC4" strokeWidth="2"/>
+        <circle cx="20" cy="26" r="3" fill="#4ECDC4"/>
+      </svg>
+    ),
+    pill: (
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <rect x="10" y="15" width="20" height="10" rx="5" stroke="#FF6B6B" strokeWidth="2"/>
+        <line x1="20" y1="15" x2="20" y2="25" stroke="#FF6B6B" strokeWidth="2"/>
+      </svg>
+    ),
+    syringe: (
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <rect x="15" y="10" width="10" height="20" stroke="#00843D" strokeWidth="2"/>
+        <path d="M15 10L25 10L20 5L15 10Z" fill="#00843D"/>
+        <line x1="20" y1="30" x2="20" y2="35" stroke="#00843D" strokeWidth="2"/>
+      </svg>
+    ),
+    thermometer: (
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <rect x="18" y="5" width="4" height="25" rx="2" stroke="#FFCC00" strokeWidth="2"/>
+        <circle cx="20" cy="32" r="4" stroke="#FFCC00" strokeWidth="2"/>
+        <line x1="20" y1="28" x2="20" y2="32" stroke="#FF6B6B" strokeWidth="2"/>
+      </svg>
+    ),
+    cross: (
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <rect x="15" y="5" width="10" height="30" fill="#FF0000"/>
+        <rect x="5" y="15" width="30" height="10" fill="#FF0000"/>
+      </svg>
+    )
+  };
+  
+  return (
+    <motion.div
+      className="absolute pointer-events-none"
+      initial={{ 
+        y,
+        x,
+        scale: 0,
+        opacity: 0
+      }}
+      animate={{ 
+        y: [y, y - 50, y + 30, y],
+        x: [x, x + 20, x - 20, x],
+        scale: [0, 1.2, 1],
+        opacity: [0, 1, 1, 0],
+        rotateY: 360
+      }}
+      transition={{
+        duration: 10 + Math.random() * 5,
+        delay,
+        repeat: Infinity,
+        repeatDelay: Math.random() * 5
+      }}
+      style={{
+        perspective: 1000,
+        transformStyle: 'preserve-3d'
+      }}
+    >
+      <motion.div
+        style={{ rotateY }}
+        className="transform-gpu"
+      >
+        {symbols[type]}
+      </motion.div>
+    </motion.div>
+  );
+});
+
+MedicalSymbol.displayName = 'MedicalSymbol';
+
+// DNA Helix Component
+const DNAHelix = memo(() => {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <svg className="absolute w-full h-full opacity-10" viewBox="0 0 1920 1080">
+        <defs>
+          <linearGradient id="dnaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#4ECDC4" stopOpacity="0.3"/>
+            <stop offset="50%" stopColor="#00843D" stopOpacity="0.5"/>
+            <stop offset="100%" stopColor="#FF6B6B" stopOpacity="0.3"/>
+          </linearGradient>
+        </defs>
+        <motion.g fill="url(#dnaGradient)">
+          {[...Array(20)].map((_, i) => {
+            const y = i * 100;
+            const phase = i * 0.3;
+            return (
+              <motion.g key={i}>
+                <motion.circle
+                  cx="300"
+                  cy={y}
+                  r="8"
+                  animate={{
+                    cx: [300, 400, 300],
+                    opacity: [0.3, 0.8, 0.3]
+                  }}
+                  transition={{
+                    duration: 3,
+                    delay: phase,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                <motion.circle
+                  cx="400"
+                  cy={y}
+                  r="8"
+                  animate={{
+                    cx: [400, 300, 400],
+                    opacity: [0.8, 0.3, 0.8]
+                  }}
+                  transition={{
+                    duration: 3,
+                    delay: phase,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                <motion.line
+                  x1="300"
+                  y1={y}
+                  x2="400"
+                  y2={y}
+                  stroke="url(#dnaGradient)"
+                  strokeWidth="2"
+                  animate={{
+                    x1: [300, 400, 300],
+                    x2: [400, 300, 400]
+                  }}
+                  transition={{
+                    duration: 3,
+                    delay: phase,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+              </motion.g>
+            );
+          })}
+        </motion.g>
+      </svg>
+    </div>
+  );
+});
+
+DNAHelix.displayName = 'DNAHelix';
+
+// Medical Equipment Silhouettes
+const MedicalEquipmentBg = memo(() => (
+  <div className="absolute inset-0 pointer-events-none">
+    <div className="absolute top-0 left-0 w-64 h-64 opacity-5 blur-sm">
+      <svg viewBox="0 0 200 200" fill="currentColor" className="text-hospital-mint">
+        <path d="M100 20C60 20 30 50 30 90C30 130 60 160 100 180C140 160 170 130 170 90C170 50 140 20 100 20ZM90 60H110V90H140V110H110V140H90V110H60V90H90V60Z"/>
+      </svg>
+    </div>
+    <div className="absolute bottom-0 right-0 w-96 h-96 opacity-5 blur-md transform rotate-45">
+      <svg viewBox="0 0 200 200" fill="currentColor" className="text-hospital-coral">
+        <rect x="80" y="20" width="40" height="120" rx="20"/>
+        <circle cx="100" cy="160" r="30"/>
+        <rect x="95" y="140" width="10" height="20"/>
+      </svg>
+    </div>
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 opacity-5 blur-lg">
+      <svg viewBox="0 0 200 200" fill="currentColor" className="text-yellow-400">
+        <path d="M100 40L120 80H80L100 40Z"/>
+        <rect x="90" y="80" width="20" height="60"/>
+        <circle cx="100" cy="150" r="20"/>
+      </svg>
+    </div>
+  </div>
+));
+
+MedicalEquipmentBg.displayName = 'MedicalEquipmentBg';
+
+// Pulse Ring Component for heartbeat visualization
+const PulseRing = memo(({ x, y, delay = 0 }: { x: number; y: number; delay?: number }) => (
+  <motion.div
+    className="absolute pointer-events-none"
+    style={{ left: x, top: y }}
+    initial={{ scale: 0, opacity: 1 }}
+    animate={{ 
+      scale: [0, 2, 3],
+      opacity: [1, 0.5, 0]
+    }}
+    transition={{
+      duration: 2,
+      delay,
+      ease: "easeOut"
+    }}
+  >
+    <div className="w-20 h-20 rounded-full border-2 border-hospital-mint" />
+  </motion.div>
+));
+
+PulseRing.displayName = 'PulseRing';
+
+// Sound Wave Bars
+const SoundWaveBars = memo(({ isActive }: { isActive: boolean }) => (
+  <div className="absolute bottom-10 right-10 flex items-end gap-1">
+    {[...Array(5)].map((_, i) => (
+      <motion.div
+        key={i}
+        className="w-1 bg-hospital-mint"
+        animate={{
+          height: isActive ? [10, 30, 10] : 10,
+          opacity: isActive ? [0.3, 1, 0.3] : 0.3
+        }}
+        transition={{
+          duration: 0.5 + i * 0.1,
+          repeat: Infinity,
+          delay: i * 0.1
+        }}
+      />
+    ))}
+  </div>
+));
+
+SoundWaveBars.displayName = 'SoundWaveBars';
 
 // Memoized eucalyptus leaf component with CSS animation fallback for mobile
 const EucalyptusLeaf = memo(({ delay = 0, x = 0 }: { delay?: number; x?: number }) => {
@@ -208,10 +439,15 @@ SouthernCross.displayName = 'SouthernCross';
 
 export default function VisualHero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const monitorFrameRef = useRef<HTMLDivElement>(null);
   const [showThankYou, setShowThankYou] = useState(false);
+  const [showPulse, setShowPulse] = useState(false);
+  const [heartRate, setHeartRate] = useState(72);
+  const [isMorphing, setIsMorphing] = useState(false);
   const animationRef = useRef<number>();
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1920);
   const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 1080);
+  const [pulsePositions, setPulsePositions] = useState<Array<{x: number, y: number, id: number}>>([]);
 
   // Optimized resize handler with debounce
   useEffect(() => {
@@ -230,6 +466,15 @@ export default function VisualHero() {
       clearTimeout(timeoutId);
     };
   }, []);
+  
+  // Clean up pulse positions after animation
+  useEffect(() => {
+    const cleanup = setInterval(() => {
+      setPulsePositions(prev => prev.filter(p => Date.now() - p.id < 2000));
+    }, 1000);
+    
+    return () => clearInterval(cleanup);
+  }, []);
 
   // Create control points for smooth EKG curve
   const createEKGPath = useCallback((progress: number, width: number, height: number, time: number) => {
@@ -244,7 +489,15 @@ export default function VisualHero() {
       const t = i / 1000;
       
       // Create realistic EKG pattern with smooth transitions
-      if (t < 0.4) {
+      if (isMorphing && t > 0.7) {
+        // Morph into heart shape
+        const heartT = (t - 0.7) / 0.3;
+        const heartScale = 50;
+        const angle = heartT * Math.PI * 2;
+        const heartX = 16 * Math.pow(Math.sin(angle), 3);
+        const heartY = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
+        y = centerY + heartY * heartScale * (1 - Math.abs(heartT - 0.5) * 2);
+      } else if (t < 0.4) {
         // Baseline with subtle variation
         y = centerY + Math.sin(t * 20) * 2 + Math.cos(t * 30) * 1;
       } else if (t >= 0.4 && t < 0.45) {
@@ -262,6 +515,17 @@ export default function VisualHero() {
         // R wave (sharp peak)
         const localT = (t - 0.48) / 0.01;
         y = centerY - Math.sin(localT * Math.PI) * 150 * Math.pow(1 - localT, 0.3);
+        
+        // Trigger pulse visualization at R wave peak
+        if (localT > 0.4 && localT < 0.6 && !isMorphing) {
+          const currentX = x;
+          const currentY = y;
+          if (Math.random() > 0.7) { // Don't trigger every time for performance
+            setPulsePositions(prev => [...prev, { x: currentX, y: currentY, id: Date.now() }]);
+            setShowPulse(true);
+            setTimeout(() => setShowPulse(false), 500);
+          }
+        }
       } else if (t >= 0.49 && t < 0.5) {
         // S wave (sharp dip)
         const localT = (t - 0.49) / 0.01;
@@ -288,7 +552,7 @@ export default function VisualHero() {
     }
     
     return points;
-  }, []);
+  }, [isMorphing]);
 
   // Optimized EKG animation
   useEffect(() => {
@@ -305,6 +569,12 @@ export default function VisualHero() {
     let time = 0;
     const animationDuration = 5000;
     const startTime = Date.now();
+    let beatCount = 0;
+    
+    // Heart rate variation
+    const heartRateInterval = setInterval(() => {
+      setHeartRate(prev => 68 + Math.floor(Math.random() * 8));
+    }, 2000);
 
     const drawEKG = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -386,7 +656,12 @@ export default function VisualHero() {
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(drawEKG);
       } else {
-        setTimeout(() => setShowThankYou(true), 500);
+        // Start morphing animation
+        setIsMorphing(true);
+        setTimeout(() => {
+          setShowThankYou(true);
+          clearInterval(heartRateInterval);
+        }, 1500);
       }
     };
 
@@ -396,11 +671,18 @@ export default function VisualHero() {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
+      clearInterval(heartRateInterval);
     };
-  }, [createEKGPath, windowWidth]);
+  }, [createEKGPath, windowWidth, isMorphing]);
 
   const isMobile = windowWidth <= 768;
   const leafCount = isMobile ? 8 : 20; // Reduce leaves on mobile
+  const medicalSymbolCount = isMobile ? 5 : 12;
+  
+  // Get current date/time
+  const currentDate = new Date();
+  const dateStr = currentDate.toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' });
+  const timeStr = currentDate.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
 
   return (
     <div className="relative h-screen overflow-hidden bg-gradient-to-b from-hospital-dark via-[#0A1A1A] to-[#001525]">
@@ -427,6 +709,13 @@ export default function VisualHero() {
           animation-fill-mode: both;
           --x-drift: ${Math.random() * 200 - 100}px;
         }
+        
+        @media (max-width: 768px) {
+          .monitor-frame {
+            margin: 0 auto;
+            padding: 0 1rem;
+          }
+        }
       `}</style>
 
       {/* Complex background pattern */}
@@ -442,6 +731,12 @@ export default function VisualHero() {
         }} />
       </div>
 
+      {/* Medical Equipment Background */}
+      <MedicalEquipmentBg />
+      
+      {/* DNA Helix Background */}
+      <DNAHelix />
+      
       {/* Southern Cross Constellation */}
       <SouthernCross />
 
@@ -458,16 +753,113 @@ export default function VisualHero() {
           />
         ))}
       </div>
+      
+      {/* Floating Medical Symbols */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(medicalSymbolCount)].map((_, i) => {
+          const types: Array<'stethoscope' | 'pill' | 'syringe' | 'thermometer' | 'cross'> = ['stethoscope', 'pill', 'syringe', 'thermometer', 'cross'];
+          return (
+            <MedicalSymbol
+              key={`med-${i}`}
+              type={types[i % types.length]}
+              delay={i * 2}
+              x={Math.random() * windowWidth}
+              y={Math.random() * windowHeight}
+            />
+          );
+        })}
+      </div>
 
-      {/* EKG Canvas */}
-      <canvas
-        ref={canvasRef}
-        className="absolute top-1/2 -translate-y-1/2 opacity-90 z-10"
+      {/* Medical Monitor Frame */}
+      <div 
+        ref={monitorFrameRef}
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10"
         style={{
-          willChange: 'transform',
-          transform: 'translate3d(0, 0, 0)'
+          width: isMobile ? '90%' : '80%',
+          maxWidth: '1200px'
         }}
-      />
+      >
+        {/* Monitor Frame */}
+        <div className="relative bg-gray-900 rounded-lg p-4 shadow-2xl border-2 border-gray-700">
+          {/* Monitor Header */}
+          <div className="absolute top-0 left-0 right-0 p-2 flex justify-between items-center text-xs text-green-400 font-mono">
+            <div className="flex gap-4">
+              <span>PATIENT: J.SMITH</span>
+              <span>ID: 12345</span>
+            </div>
+            <div className="flex gap-4">
+              <span>{timeStr}</span>
+              <span>{dateStr}</span>
+            </div>
+          </div>
+          
+          {/* Monitor Indicators */}
+          <div className="absolute top-2 right-2 flex gap-1">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+            <div className="w-2 h-2 bg-yellow-400 rounded-full" />
+            <div className="w-2 h-2 bg-gray-600 rounded-full" />
+          </div>
+          
+          {/* EKG Canvas Container */}
+          <div className="relative mt-8 mb-20">
+            <canvas
+              ref={canvasRef}
+              className="w-full opacity-90"
+              style={{
+                willChange: 'transform',
+                transform: 'translate3d(0, 0, 0)'
+              }}
+            />
+            
+            {/* Heart Rate Display */}
+            <div className="absolute top-2 left-2 bg-black/50 rounded px-3 py-1">
+              <div className="text-hospital-mint font-mono">
+                <span className="text-2xl font-bold">{heartRate}</span>
+                <span className="text-sm ml-1">BPM</span>
+              </div>
+            </div>
+            
+            {/* Pulse Rings */}
+            {pulsePositions.map(pos => (
+              <PulseRing key={pos.id} x={pos.x} y={pos.y} delay={0} />
+            ))}
+          </div>
+          
+          {/* Vital Signs Display */}
+          <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/30 rounded-b-lg">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-mono">
+              <div className="text-center">
+                <div className="text-gray-400">BP</div>
+                <div className="text-green-400 font-bold">120/80</div>
+              </div>
+              <div className="text-center">
+                <div className="text-gray-400">SpO2</div>
+                <div className="text-cyan-400 font-bold">98%</div>
+              </div>
+              <div className="text-center">
+                <div className="text-gray-400">Temp</div>
+                <div className="text-yellow-400 font-bold">36.5°C</div>
+              </div>
+              <div className="text-center">
+                <div className="text-gray-400">Resp</div>
+                <div className="text-purple-400 font-bold">16/min</div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Monitor Buttons */}
+          <div className="absolute bottom-2 right-2 flex gap-1">
+            {['MENU', 'ALARM', 'FREEZE'].map(label => (
+              <button key={label} className="px-2 py-1 bg-gray-800 text-gray-400 text-xs rounded hover:bg-gray-700 transition-colors">
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        {/* Sound Wave Visualization */}
+        <SoundWaveBars isActive={showPulse} />
+      </div>
       
       {/* Thank You Text */}
       <AnimatePresence>

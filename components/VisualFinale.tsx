@@ -12,7 +12,8 @@ const FireworkParticle = memo(({ x, y, color, delay = 0 }: {
   delay?: number;
 }) => {
   const angle = Math.random() * Math.PI * 2;
-  const velocity = 100 + Math.random() * 200;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const velocity = isMobile ? (50 + Math.random() * 100) : (100 + Math.random() * 200);
   const lifetime = 1 + Math.random() * 1;
   
   return (
@@ -51,6 +52,8 @@ const Firework = memo(({ x, y, onComplete }: {
   const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#DDA0DD', '#FF69B4'];
   const color = colors[Math.floor(Math.random() * colors.length)];
   const particleCount = 30 + Math.floor(Math.random() * 20);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const explosionRadius = isMobile ? 50 : 100;
   
   useEffect(() => {
     if (onComplete) {
@@ -126,7 +129,7 @@ const AnimatedOperaHouse = memo(() => {
       whileHover={{ scale: 1.05 }}
       transition={{ duration: 0.3 }}
     >
-      <svg width="800" height="400" viewBox="0 0 800 400" className="w-full h-full">
+      <svg width="800" height="400" viewBox="0 0 800 400" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
         <defs>
           {/* Gradients for 3D effect */}
           <linearGradient id="shell1" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -234,9 +237,11 @@ AnimatedOperaHouse.displayName = 'AnimatedOperaHouse';
 
 // Aurora Australis effect
 const AuroraAustralis = memo(() => {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      <svg width="100%" height="100%" className="absolute inset-0">
+      <svg width="100%" height="100%" className="absolute inset-0" viewBox={isMobile ? "0 0 375 800" : "0 0 1920 1080"} preserveAspectRatio="xMidYMid slice">
         <defs>
           <linearGradient id="aurora1" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#00FF00" stopOpacity="0" />
@@ -257,11 +262,15 @@ const AuroraAustralis = memo(() => {
         
         {/* Aurora waves */}
         <motion.path
-          d="M 0 100 Q 200 50, 400 100 T 800 100 L 800 300 L 0 300 Z"
+          d={isMobile ? "M 0 100 Q 187 50, 375 100 T 750 100 L 750 300 L 0 300 Z" : "M 0 100 Q 200 50, 400 100 T 800 100 L 800 300 L 0 300 Z"}
           fill="url(#aurora1)"
           filter="url(#auroraBlur)"
           animate={{
-            d: [
+            d: isMobile ? [
+              "M 0 100 Q 187 50, 375 100 T 750 100 L 750 300 L 0 300 Z",
+              "M 0 150 Q 187 100, 375 150 T 750 150 L 750 300 L 0 300 Z",
+              "M 0 100 Q 187 50, 375 100 T 750 100 L 750 300 L 0 300 Z",
+            ] : [
               "M 0 100 Q 200 50, 400 100 T 800 100 L 800 300 L 0 300 Z",
               "M 0 150 Q 200 100, 400 150 T 800 150 L 800 300 L 0 300 Z",
               "M 0 100 Q 200 50, 400 100 T 800 100 L 800 300 L 0 300 Z",
@@ -275,11 +284,15 @@ const AuroraAustralis = memo(() => {
         />
         
         <motion.path
-          d="M 0 150 Q 300 100, 600 150 T 1200 150 L 1200 350 L 0 350 Z"
+          d={isMobile ? "M 0 150 Q 187 100, 375 150 T 750 150 L 750 350 L 0 350 Z" : "M 0 150 Q 300 100, 600 150 T 1200 150 L 1200 350 L 0 350 Z"}
           fill="url(#aurora2)"
           filter="url(#auroraBlur)"
           animate={{
-            d: [
+            d: isMobile ? [
+              "M 0 150 Q 187 100, 375 150 T 750 150 L 750 350 L 0 350 Z",
+              "M 0 200 Q 187 150, 375 200 T 750 200 L 750 350 L 0 350 Z",
+              "M 0 150 Q 187 100, 375 150 T 750 150 L 750 350 L 0 350 Z",
+            ] : [
               "M 0 150 Q 300 100, 600 150 T 1200 150 L 1200 350 L 0 350 Z",
               "M 0 200 Q 300 150, 600 200 T 1200 200 L 1200 350 L 0 350 Z",
               "M 0 150 Q 300 100, 600 150 T 1200 150 L 1200 350 L 0 350 Z",
@@ -302,12 +315,14 @@ AuroraAustralis.displayName = 'AuroraAustralis';
 // 3D Confetti component
 const Confetti3D = memo(({ x, delay, color }: { x: number; delay: number; color: string }) => {
   const y = useMotionValue(-50);
-  const rotateX = useTransform(y, [-50, window.innerHeight + 100], [0, 720]);
-  const rotateY = useTransform(y, [-50, window.innerHeight + 100], [0, 360]);
+  const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+  const rotateX = useTransform(y, [-50, viewportHeight + 100], [0, 720]);
+  const rotateY = useTransform(y, [-50, viewportHeight + 100], [0, 360]);
   
   const shapes = ['rect', 'circle', 'star'];
   const shape = shapes[Math.floor(Math.random() * shapes.length)];
-  const size = 10 + Math.random() * 15;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const size = isMobile ? (8 + Math.random() * 10) : (10 + Math.random() * 15);
   
   return (
     <motion.div
@@ -321,7 +336,7 @@ const Confetti3D = memo(({ x, delay, color }: { x: number; delay: number; color:
       }}
       initial={{ y: -50 }}
       animate={{
-        y: window.innerHeight + 100,
+        y: viewportHeight + 100,
       }}
       transition={{
         duration: 3 + Math.random() * 2,
@@ -374,10 +389,11 @@ const AnimatedLetter = memo(({ letter, index, totalLetters }: {
   const delay = index * 0.05;
   const middleIndex = Math.floor(totalLetters / 2);
   const distanceFromMiddle = Math.abs(index - middleIndex);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
   return (
     <motion.span
-      className="inline-block"
+      className={`inline-block ${isMobile ? 'mx-[1px]' : ''}`}
       initial={{
         opacity: 0,
         y: 50,
@@ -398,7 +414,7 @@ const AnimatedLetter = memo(({ letter, index, totalLetters }: {
         damping: 10,
       }}
       whileHover={{
-        scale: 1.2,
+        scale: isMobile ? 1.1 : 1.2,
         rotateY: 180,
         color: '#FFD700',
       }}
@@ -522,9 +538,10 @@ export default function VisualFinale() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   
-  // Parallax transforms
-  const parallaxX = useTransform(mouseX, [0, window.innerWidth], [-50, 50]);
-  const parallaxY = useTransform(mouseY, [0, window.innerHeight], [-30, 30]);
+  // Parallax transforms (disabled on mobile)
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const parallaxX = useTransform(mouseX, [0, window.innerWidth], isMobile ? [0, 0] : [-50, 50]);
+  const parallaxY = useTransform(mouseY, [0, window.innerHeight], isMobile ? [0, 0] : [-30, 30]);
   
   // Handle mouse move for parallax
   useEffect(() => {
@@ -550,8 +567,12 @@ export default function VisualFinale() {
     if (!finaleStarted) return;
     
     const launchFirework = () => {
-      const x = Math.random() * window.innerWidth;
-      const y = 100 + Math.random() * 200;
+      const viewportWidth = window.innerWidth;
+      const isMobile = viewportWidth < 768;
+      // On mobile, ensure fireworks stay within viewport with padding
+      const padding = isMobile ? 20 : 50;
+      const x = padding + Math.random() * (viewportWidth - padding * 2);
+      const y = isMobile ? (50 + Math.random() * 150) : (100 + Math.random() * 200);
       const id = Date.now() + Math.random();
       
       setFireworks(prev => [...prev, { id, x, y }]);
@@ -594,15 +615,20 @@ export default function VisualFinale() {
   }, []);
   
   // Generate confetti
-  const confettiColors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#DDA0DD'];
-  const confettiPieces = useMemo(() => 
-    Array.from({ length: 50 }, (_, i) => ({
+  const confettiPieces = useMemo(() => {
+    const confettiColors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#DDA0DD'];
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 375;
+    const isMobile = viewportWidth < 768;
+    const pieceCount = isMobile ? 30 : 50;
+    const padding = isMobile ? 10 : 0;
+    
+    return Array.from({ length: pieceCount }, (_, i) => ({
       id: i,
-      x: Math.random() * window.innerWidth,
+      x: padding + Math.random() * (viewportWidth - padding * 2),
       delay: Math.random() * 5,
       color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
-    })), [confettiColors]
-  );
+    }));
+  }, []);
   
   const titleText = "Journey Well Travelled";
   const titleLetters = titleText.split('');
@@ -622,13 +648,17 @@ export default function VisualFinale() {
         style={{ x: parallaxX, y: parallaxY }}
       >
         {/* Sydney Opera House */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 opacity-30">
-          <AnimatedOperaHouse />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[90vw] md:max-w-[800px] opacity-30">
+          <div className="scale-[0.6] md:scale-100 origin-bottom">
+            <AnimatedOperaHouse />
+          </div>
         </div>
       </motion.div>
       
       {/* Enhanced Southern Cross */}
-      <EnhancedSouthernCross />
+      <div className="hidden md:block">
+        <EnhancedSouthernCross />
+      </div>
       
       {/* Fireworks layer */}
       <div className="absolute inset-0 pointer-events-none">
@@ -666,7 +696,7 @@ export default function VisualFinale() {
       <AnimatePresence>
         {showContent && (
           <motion.div
-            className="relative z-10 flex items-center justify-center min-h-screen px-4"
+            className="relative z-10 flex items-center justify-center min-h-screen px-4 py-8 md:py-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 2 }}
@@ -675,7 +705,7 @@ export default function VisualFinale() {
             <div className="text-center max-w-4xl">
               {/* Animated title */}
               <motion.h1
-                className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-400 mb-8"
+                className="text-3xl sm:text-5xl md:text-6xl lg:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-400 mb-6 md:mb-8 leading-tight"
                 style={{ transformStyle: 'preserve-3d', perspective: '1000px' }}
               >
                 {titleLetters.map((letter, i) => (
@@ -690,7 +720,7 @@ export default function VisualFinale() {
               
               {/* Typewriter subtitle */}
               <motion.p
-                className="text-2xl md:text-3xl text-white mb-12"
+                className="text-xl md:text-3xl text-white mb-8 md:mb-12"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.5 }}
@@ -725,7 +755,7 @@ export default function VisualFinale() {
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 <motion.h2
-                  className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6"
+                  className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 md:mb-6"
                   animate={{
                     textShadow: [
                       '0 0 20px rgba(255, 255, 255, 0.5)',
