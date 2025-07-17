@@ -37,7 +37,7 @@ const VisualStaff: React.FC = () => {
       subtitle: "Old School & Sweet",
       color: "#FFD93D",
       icon: "🍫",
-      description: "Traditional care with a chocolate-coated touch",
+      description: "Vigorous old-school nursing with a chocolate-coated touch",
       animation: { x: [-2, 2, -2], transition: { duration: 0.5, repeat: Infinity } }
     },
     {
