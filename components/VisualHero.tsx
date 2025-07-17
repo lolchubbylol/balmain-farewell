@@ -370,49 +370,6 @@ const ParticleField = memo(() => {
           will-change: transform;
           transform: translate3d(0, 0, 0);
         }
-        
-        @keyframes medical-float {
-          0% {
-            transform: translate3d(0, -60px, 0) rotate(0deg) scale(0);
-            opacity: 0;
-          }
-          5% {
-            transform: translate3d(0, 0, 0) rotate(10deg) scale(1);
-            opacity: 0.4;
-          }
-          95% {
-            transform: translate3d(var(--drift-x, 0), calc(100vh + 60px), 0) rotate(calc(360deg * var(--rotation-speed, 1))) scale(0.8);
-            opacity: 0.4;
-          }
-          100% {
-            transform: translate3d(var(--drift-x, 0), calc(100vh + 120px), 0) rotate(calc(360deg * var(--rotation-speed, 1))) scale(0);
-            opacity: 0;
-          }
-        }
-        
-        .medical-symbol {
-          will-change: transform, opacity;
-          transform-origin: center;
-        }
-        
-        @keyframes float-up {
-          0% {
-            transform: translate3d(0, 110vh, 0) scale(0);
-            opacity: 0;
-          }
-          5% {
-            transform: translate3d(0, 100vh, 0) scale(1);
-            opacity: 0.3;
-          }
-          95% {
-            transform: translate3d(var(--float-offset, 0), 0vh, 0) scale(1);
-            opacity: 0.3;
-          }
-          100% {
-            transform: translate3d(var(--float-offset, 0), -10vh, 0) scale(0);
-            opacity: 0;
-          }
-        }
       `}</style>
       {particles.map((particle) => (
         <div
@@ -810,28 +767,17 @@ export default function VisualHero() {
         ))}
       </div>
       
-      {/* Ambient Medical Particles - Smooth floating dots instead of symbols */}
+      {/* Floating Medical Symbols */}
       <div className="absolute inset-0 pointer-events-none">
-        {[...Array(15)].map((_, i) => {
-          const colors = ['#4ECDC4', '#FF6B6B', '#00843D', '#FFCC00', '#FF0000'];
-          const size = 4 + Math.random() * 4;
-          const x = Math.random() * 100;
-          const duration = 20 + Math.random() * 15;
-          const delay = Math.random() * duration;
-          
+        {[...Array(medicalSymbolCount)].map((_, i) => {
+          const types: Array<'stethoscope' | 'pill' | 'syringe' | 'thermometer' | 'cross'> = ['stethoscope', 'pill', 'syringe', 'thermometer', 'cross'];
           return (
-            <div
-              key={`ambient-${i}`}
-              className="absolute rounded-full"
-              style={{
-                left: `${x}%`,
-                width: `${size}px`,
-                height: `${size}px`,
-                backgroundColor: colors[i % colors.length],
-                opacity: 0.3,
-                animation: `float-up ${duration}s ${delay}s infinite linear`,
-                '--float-offset': `${(Math.random() - 0.5) * 100}px`,
-              } as React.CSSProperties}
+            <MedicalSymbol
+              key={`med-${i}`}
+              type={types[i % types.length]}
+              delay={i * 2}
+              x={Math.random() * windowWidth}
+              y={Math.random() * windowHeight}
             />
           );
         })}
