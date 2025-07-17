@@ -24,7 +24,7 @@ const VisualSignatures: React.FC = () => {
       subtitle: "The Only Female Student Nurse",
       color: "#FF6B6B",
       signature: "M20,45 Q35,25 50,45 Q65,65 80,45 Q95,25 110,45 L130,40",
-      funFact: "Only female USYD student nurse on PM shifts at Lever Ward"
+      funFact: "Only female USYD student nurse in NSW at Balmain Hospital Lever Ward PM shift (keeps boys in check)"
     },
     {
       name: "Sonny",
