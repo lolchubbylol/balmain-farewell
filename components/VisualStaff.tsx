@@ -307,17 +307,27 @@ const VisualStaff: React.FC = () => {
         @keyframes koala-float {
           0% {
             transform: translate3d(0, 100vh, 0) rotate(0deg);
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
           }
           100% {
             transform: translate3d(var(--x-drift, 0px), -200px, 0) rotate(360deg);
+            opacity: 0;
           }
         }
         
         .floating-koala {
           animation: koala-float var(--duration, 20s) linear infinite;
           animation-delay: var(--delay, 0s);
+          animation-fill-mode: both;
           will-change: transform;
           transform: translate3d(0, 0, 0);
+          opacity: 0;
         }
       `}</style>
 
@@ -342,6 +352,7 @@ const VisualStaff: React.FC = () => {
                 className="absolute floating-koala"
                 style={{
                   left: `${startX}px`,
+                  bottom: '-100px',
                   '--x-drift': `${xDrift}px`,
                   '--duration': `${duration}s`,
                   '--delay': `${delay}s`

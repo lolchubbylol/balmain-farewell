@@ -184,18 +184,28 @@ const VisualSignatures: React.FC = () => {
       <style jsx global>{`
         @keyframes medical-float {
           0% {
-            transform: translate3d(0, -50px, 0) rotate(0deg);
+            transform: translate3d(0, -100px, 0) rotate(0deg);
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
           }
           100% {
             transform: translate3d(var(--x-drift, 0px), calc(100vh + 100px), 0) rotate(360deg);
+            opacity: 0;
           }
         }
         
         .floating-medical {
           animation: medical-float var(--duration, 20s) linear infinite;
           animation-delay: var(--delay, 0s);
+          animation-fill-mode: both;
           will-change: transform;
           transform: translate3d(0, 0, 0);
+          opacity: 0;
         }
         
         @keyframes kangaroo-hop {
@@ -218,12 +228,14 @@ const VisualSignatures: React.FC = () => {
         
         .kangaroo-container {
           animation: kangaroo-hop 20s linear infinite;
+          animation-fill-mode: both;
           will-change: transform;
           transform: translate3d(0, 0, 0);
         }
         
         .kangaroo-bounce {
           animation: kangaroo-bounce 0.8s ease-in-out infinite;
+          animation-fill-mode: both;
           will-change: transform;
           transform: translate3d(0, 0, 0);
         }
@@ -253,6 +265,7 @@ const VisualSignatures: React.FC = () => {
                 className="absolute text-4xl floating-medical"
                 style={{
                   left: `${startX}px`,
+                  top: '-100px',
                   opacity,
                   '--x-drift': `${xDrift}px`,
                   '--duration': `${duration}s`,

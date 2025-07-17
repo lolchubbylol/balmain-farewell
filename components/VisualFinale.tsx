@@ -43,6 +43,7 @@ const FloatingLeaf = memo(({ delay = 0, startX = 0, duration = 15 }: {
         className="absolute pointer-events-none finale-leaf"
         style={{
           left: `${startX}px`,
+          top: '-100px',
           animationDelay: `${delay}s`,
           '--duration': `${duration}s`,
           '--x-drift': `${(Math.random() - 0.5) * 200}px`,
@@ -250,6 +251,7 @@ export default function VisualFinale() {
         
         .finale-leaf {
           animation: finale-leaf-float var(--duration, 15s) linear infinite;
+          animation-fill-mode: both;
           will-change: transform;
           transform: translate3d(0, 0, 0);
         }
@@ -272,6 +274,7 @@ export default function VisualFinale() {
         .floating-heart {
           animation: heart-float var(--duration, 8s) ease-out infinite;
           animation-delay: var(--delay, 0s);
+          animation-fill-mode: both;
           will-change: transform;
           transform: translate3d(0, 0, 0);
         }
@@ -391,6 +394,7 @@ export default function VisualFinale() {
                     className="absolute floating-heart"
                     style={{
                       left: `${heart.x}px`,
+                      bottom: '-100px',
                       '--x-drift': `${(Math.random() - 0.5) * 200}px`,
                       '--duration': `${heart.duration}s`,
                       '--delay': `${heart.delay}s`

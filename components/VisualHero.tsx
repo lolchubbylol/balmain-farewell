@@ -23,6 +23,7 @@ const EucalyptusLeaf = memo(({ delay = 0, x = 0 }: { delay?: number; x?: number 
         className="absolute pointer-events-none floating-leaf"
         style={{
           left: `${x}px`,
+          top: '-100px',
           animationDelay: `${delay}s`,
           willChange: 'transform',
           transform: 'translate3d(0, 0, 0)'
@@ -423,6 +424,7 @@ export default function VisualHero() {
         
         .floating-leaf {
           animation: floating-leaf 20s linear infinite;
+          animation-fill-mode: both;
           --x-drift: ${Math.random() * 200 - 100}px;
         }
       `}</style>
