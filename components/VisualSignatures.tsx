@@ -17,28 +17,28 @@ const VisualSignatures: React.FC = () => {
       subtitle: "The One Who Asked Too Many Questions",
       color: "#4A90E2",
       signature: "M20,50 Q40,30 60,50 T100,50 Q120,35 140,50",
-      funFact: "Survival rate: 100% (barely)"
+      funFact: "Lives on meal replacement powder"
     },
     {
       name: "Jolia", 
-      subtitle: "Master of Looking Busy",
+      subtitle: "The Only Female Student Nurse",
       color: "#FF6B6B",
       signature: "M20,45 Q35,25 50,45 Q65,65 80,45 Q95,25 110,45 L130,40",
       funFact: "Coffee consumed: ∞"
     },
     {
       name: "Sonny",
-      subtitle: "Professional Note-Taker",
+      subtitle: "The Rule Follower",
       color: "#4ECDC4", 
       signature: "M15,50 Q30,30 45,50 Q60,70 75,50 Q90,30 105,50 Q120,50 135,45",
-      funFact: "Pens lost: 47"
+      funFact: "Follows rules to the letter"
     },
     {
       name: "Gabrielle",
-      subtitle: "Somehow Always On Time",
+      subtitle: "The Nice Guy™",
       color: "#FFD93D",
       signature: "M25,50 Q40,35 55,50 Q70,65 85,50 Q100,35 115,50 L125,45",
-      funFact: "Alarms set: 12 daily"
+      funFact: "Certified cool & nice guy"
     }
   ];
 
@@ -222,10 +222,10 @@ const VisualSignatures: React.FC = () => {
             Thanks for putting up with us
           </p>
           <p className="text-xs sm:text-sm text-gray-500">
-            We promise we were taking notes, not doodling
+            We promise we were taking notes during the day
           </p>
           <p className="text-xs text-gray-600 mt-2 sm:mt-4">
-            (Okay, maybe a little doodling)
+            (During late hours we may have dwadled a bit...)
           </p>
         </motion.div>
         </div>

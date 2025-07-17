@@ -33,11 +33,11 @@ const VisualStaff: React.FC = () => {
       animation: { scale: [1, 1.05, 1], transition: { duration: 2, repeat: Infinity } }
     },
     {
-      title: "Marcia",
-      subtitle: "Old School Legend",
+      title: "Mercia Healey",
+      subtitle: "Making Old School Cool Again!",
       color: "#FFD93D",
-      icon: "💪",
-      description: "Vigorous training, unforgettable lessons",
+      icon: "🍫",
+      description: "Thanks for the chocolates & food - basically kept me alive!",
       animation: { x: [-2, 2, -2], transition: { duration: 0.5, repeat: Infinity } }
     },
     {
@@ -57,12 +57,20 @@ const VisualStaff: React.FC = () => {
       animation: { opacity: [0.7, 1, 0.7], transition: { duration: 2, repeat: Infinity } }
     },
     {
-      title: "Cynthia",
+      title: "Cinthia Viana Guanaif",
       subtitle: "Portuguese Speaker 🇵🇹",
       color: "#E74C3C",
-      icon: "🗣️",
-      description: "Obrigada pela paciência com nossa conversa!",
+      icon: "💃",
+      description: "Obrigada pela paciência! (Mercia diz que você tem um sugar daddy 😉)",
       animation: { scale: [1, 1.1, 1], x: [-5, 5, -5], transition: { duration: 2.5, repeat: Infinity } }
+    },
+    {
+      title: "Mia Yan",
+      subtitle: "The AIN Who Cares",
+      color: "#FF6EC7",
+      icon: "🥗",
+      description: "Thanks for telling me to eat real food instead of meal replacement powder!",
+      animation: { y: [0, -5, 0], rotate: [0, 5, -5, 0], transition: { duration: 2, repeat: Infinity } }
     }
   ];
 
