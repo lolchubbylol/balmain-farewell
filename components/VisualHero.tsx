@@ -56,17 +56,18 @@ const MedicalSymbol = memo(({ type, delay = 0, x = 0, y = 0 }: { type: 'stethosc
         opacity: 0
       }}
       animate={{ 
-        y: [y, y - 50, y + 30, y],
-        x: [x, x + 20, x - 20, x],
-        scale: [0, 1.2, 1],
-        opacity: [0, 1, 1, 0],
-        rotateY: 360
+        y: [y, y - 50, y - 40, y + 30, y + 20, y],
+        x: [x, x + 20, x + 15, x - 20, x - 15, x],
+        scale: [0, 1.2, 1.1, 1, 1, 1],
+        opacity: [0, 0.8, 1, 1, 0.8, 0],
+        rotateY: [0, 120, 240, 360]
       }}
       transition={{
-        duration: 10 + Math.random() * 5,
+        duration: 15 + Math.random() * 5,
         delay,
         repeat: Infinity,
-        repeatDelay: Math.random() * 5
+        repeatDelay: Math.random() * 3,
+        ease: "easeInOut"
       }}
       style={{
         perspective: 1000,
@@ -108,11 +109,11 @@ const DNAHelix = memo(() => {
                   cy={y}
                   r="8"
                   animate={{
-                    cx: [300, 400, 300],
-                    opacity: [0.3, 0.8, 0.3]
+                    cx: [300, 350, 400, 350, 300],
+                    opacity: [0.3, 0.5, 0.8, 0.5, 0.3]
                   }}
                   transition={{
-                    duration: 3,
+                    duration: 4,
                     delay: phase,
                     repeat: Infinity,
                     ease: "easeInOut"
@@ -123,11 +124,11 @@ const DNAHelix = memo(() => {
                   cy={y}
                   r="8"
                   animate={{
-                    cx: [400, 300, 400],
-                    opacity: [0.8, 0.3, 0.8]
+                    cx: [400, 350, 300, 350, 400],
+                    opacity: [0.8, 0.5, 0.3, 0.5, 0.8]
                   }}
                   transition={{
-                    duration: 3,
+                    duration: 4,
                     delay: phase,
                     repeat: Infinity,
                     ease: "easeInOut"
@@ -141,11 +142,11 @@ const DNAHelix = memo(() => {
                   stroke="url(#dnaGradient)"
                   strokeWidth="2"
                   animate={{
-                    x1: [300, 400, 300],
-                    x2: [400, 300, 400]
+                    x1: [300, 350, 400, 350, 300],
+                    x2: [400, 350, 300, 350, 400]
                   }}
                   transition={{
-                    duration: 3,
+                    duration: 4,
                     delay: phase,
                     repeat: Infinity,
                     ease: "easeInOut"
@@ -256,9 +257,12 @@ const EucalyptusLeaf = memo(({ delay = 0, x = 0 }: { delay?: number; x?: number 
           left: `${x}px`,
           top: '-100px',
           animationDelay: `${delay}s`,
-          willChange: 'transform',
+          '--x-drift': `${(Math.random() - 0.5) * 300}px`,
+          '--rotation': `${360 + Math.random() * 360}deg`,
+          '--duration': `${20 + Math.random() * 10}s`,
+          willChange: 'transform, opacity',
           transform: 'translate3d(0, 0, 0)'
-        }}
+        } as React.CSSProperties}
       >
         <svg width="40" height="60" viewBox="0 0 40 60" fill="none">
           <defs>
@@ -344,9 +348,17 @@ const ParticleField = memo(() => {
             transform: translate3d(0, 0, 0) scale(0);
             opacity: 0;
           }
+          25% {
+            transform: translate3d(var(--x-mid), -15px, 0) scale(0.8);
+            opacity: 0.8;
+          }
           50% {
             transform: translate3d(var(--x-offset), -30px, 0) scale(1);
             opacity: 1;
+          }
+          75% {
+            transform: translate3d(var(--x-mid), -15px, 0) scale(0.8);
+            opacity: 0.8;
           }
           100% {
             transform: translate3d(0, 0, 0) scale(0);
@@ -368,8 +380,9 @@ const ParticleField = memo(() => {
             top: `${particle.y}%`,
             width: particle.size,
             height: particle.size,
-            animation: `particle-float ${particle.duration}s ${particle.delay}s infinite ease-in-out`,
-            '--x-offset': `${Math.random() * 20 - 10}px`
+            animation: `particle-float ${particle.duration}s ${particle.delay}s infinite cubic-bezier(0.4, 0, 0.6, 1)`,
+            '--x-offset': `${(Math.random() - 0.5) * 40}px`,
+            '--x-mid': `${(Math.random() - 0.5) * 20}px`
           } as React.CSSProperties}
         />
       ))}
@@ -421,13 +434,14 @@ const SouthernCross = memo(() => (
           filter="url(#glow)"
           initial={{ opacity: 0, scale: 0 }}
           animate={{ 
-            opacity: [0, 1, 0.7, 1],
-            scale: 1 
+            opacity: [0.5, 1, 0.7, 1, 0.5],
+            scale: [0.8, 1, 0.95, 1, 0.8]
           }}
           transition={{ 
             delay: i * 0.2,
-            duration: 2,
-            opacity: { repeat: Infinity, duration: 3 + i * 0.5 }
+            duration: 4 + i * 0.5,
+            repeat: Infinity,
+            ease: "easeInOut"
           }}
         />
       ))}
@@ -689,25 +703,24 @@ export default function VisualHero() {
       <style jsx global>{`
         @keyframes floating-leaf {
           0% {
-            transform: translate3d(0, -100px, 0) rotate(0deg);
+            transform: translate3d(0, -100px, 0) rotate(0deg) scale(1);
             opacity: 0;
           }
-          20% {
+          10% {
             opacity: 0.8;
           }
-          80% {
+          90% {
             opacity: 0.8;
           }
           100% {
-            transform: translate3d(var(--x-drift, 50px), calc(100vh + 200px), 0) rotate(360deg);
+            transform: translate3d(var(--x-drift, 50px), calc(100vh + 200px), 0) rotate(var(--rotation, 360deg)) scale(0.8);
             opacity: 0;
           }
         }
         
         .floating-leaf {
-          animation: floating-leaf 20s linear infinite;
+          animation: floating-leaf var(--duration, 20s) cubic-bezier(0.4, 0, 0.6, 1) infinite;
           animation-fill-mode: both;
-          --x-drift: ${Math.random() * 200 - 100}px;
         }
         
         @media (max-width: 768px) {
