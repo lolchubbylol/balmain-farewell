@@ -556,16 +556,20 @@ export default function VisualHero() {
       } else if (t >= 0.58 && t < 0.63) {
         // T wave (smooth bump)
         const localT = (t - 0.58) / 0.05;
-        y = centerY - Math.sin(localT * Math.PI) * 35 * (1 + Math.sin(time * 0.005) * 0.1);
+        const timeVariation = isMorphing ? 1 : (1 + Math.sin(time * 0.005) * 0.1);
+        y = centerY - Math.sin(localT * Math.PI) * 35 * timeVariation;
       } else {
         // Return to baseline with smooth transition
-        const baselineT = (t - 0.63) / (1 - 0.63);
-        // T-wave ends at centerY when localT = 1 (sin(π) = 0)
-        const tWaveEndY = centerY;
-        // Use cubic easing for smooth transition
-        const easedT = baselineT * baselineT * (3.0 - 2.0 * baselineT);
-        // Start from T-wave end position and smoothly transition to baseline with variation
-        y = tWaveEndY + Math.sin(t * 20) * 2 * easedT;
+        if (isMorphing) {
+          // When morphing, stay at baseline
+          y = centerY;
+        } else {
+          const baselineT = (t - 0.63) / (1 - 0.63);
+          // Use cubic easing for smooth transition
+          const easedT = baselineT * baselineT * (3.0 - 2.0 * baselineT);
+          // Start from centerY and add variation that fades in
+          y = centerY + Math.sin(t * 20) * 2 * easedT;
+        }
       }
       
       points.push({ x, y });
