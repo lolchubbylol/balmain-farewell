@@ -17,28 +17,28 @@ const VisualSignatures: React.FC = () => {
       subtitle: "The One Who Asked Too Many Questions",
       color: "#4A90E2",
       signature: "M20,50 Q40,30 60,50 T100,50 Q120,35 140,50",
-      funFact: "Survives on Mia's worst nightmare: meal powder"
+      funFact: "Diet: 90% powder, 10% Mercia's chocolate"
     },
     {
       name: "Jolia", 
       subtitle: "The Only Female Student Nurse",
       color: "#FF6B6B",
       signature: "M20,45 Q35,25 50,45 Q65,65 80,45 Q95,25 110,45 L130,40",
-      funFact: "Carries team morale + infinite coffee supply"
+      funFact: "Outnumbered but never outmatched"
     },
     {
       name: "Sonny",
       subtitle: "The Rule Follower",
       color: "#4ECDC4", 
       signature: "M15,50 Q30,30 45,50 Q60,70 75,50 Q90,30 105,50 Q120,50 135,45",
-      funFact: "Actually reads the medication leaflets"
+      funFact: "Has read every policy twice (still confused)"
     },
     {
       name: "Gabrielle",
       subtitle: "The Nice Guy™",
       color: "#FFD93D",
       signature: "M25,50 Q40,35 55,50 Q70,65 85,50 Q100,35 115,50 L125,45",
-      funFact: "Too nice to tell you your BP technique is wrong"
+      funFact: "Actually the nicest guy™ (certified)"
     }
   ];
 
@@ -222,10 +222,10 @@ const VisualSignatures: React.FC = () => {
             Thanks for tolerating our endless questions
           </p>
           <p className="text-xs sm:text-sm text-gray-500">
-            Professional hand sanitizer dispensers by day
+            Professional note-takers & occasional dawdlers
           </p>
           <p className="text-xs text-gray-600 mt-2 sm:mt-4">
-            3am meal-replacement-powder critics by night
+            Making memories one question at a time
           </p>
         </motion.div>
         </div>

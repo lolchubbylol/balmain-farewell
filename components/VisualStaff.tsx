@@ -34,18 +34,18 @@ const VisualStaff: React.FC = () => {
     },
     {
       title: "Mercia Healey",
-      subtitle: "The Chocolate Dealer",
+      subtitle: "The Chocolate Supplier",
       color: "#FFD93D",
       icon: "🍫",
-      description: "My survival sponsor - will work for Tim Tams",
+      description: "Nathan's survival sponsor - chocolate > meal powder",
       animation: { x: [-2, 2, -2], transition: { duration: 0.5, repeat: Infinity } }
     },
     {
       title: "Deepa Gurung",
-      subtitle: "The AIN-vincible",
+      subtitle: "The Star ⭐",
       color: "#9B59B6",
-      icon: "💪",
-      description: "Works harder than all of us combined (while smiling)",
+      icon: "✨",
+      description: "Living up to her name - shining bright every shift",
       animation: { rotate: [0, 360], transition: { duration: 3, repeat: Infinity, ease: "linear" } }
     },
     {
@@ -66,10 +66,10 @@ const VisualStaff: React.FC = () => {
     },
     {
       title: "Mia Yan",
-      subtitle: "Nutritional Therapist (Unofficial)",
+      subtitle: "The Nice One",
       color: "#FF6EC7",
-      icon: "🥗",
-      description: "\"That powder is NOT food Nathan!\" - Every. Single. Day.",
+      icon: "😊",
+      description: "Mia, I hate to break it to you but meal replacement powder IS the future",
       animation: { y: [0, -5, 0], rotate: [0, 5, -5, 0], transition: { duration: 2, repeat: Infinity } }
     }
   ];
