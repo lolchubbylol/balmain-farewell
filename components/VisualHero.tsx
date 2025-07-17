@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState, memo, useCallback } from 'react';
+import { useEffect, useRef, useState, memo, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useSpring, useTransform, useMotionValue } from 'framer-motion';
 
 // Medical symbol component with smooth continuous floating
 const MedicalSymbol = memo(({ type, delay = 0, x = 0, y = 0 }: { type: 'stethoscope' | 'pill' | 'syringe' | 'thermometer' | 'cross'; delay?: number; x?: number; y?: number }) => {
   const uniqueId = `med-${type}-${x}-${y}`;
+  
+  // Use stable random values based on position
+  const floatDuration = useMemo(() => 20 + (x % 10), [x]);
+  const driftAmount = useMemo(() => 40 + (y % 40), [y]);
+  const rotationSpeed = useMemo(() => 0.5 + ((x + y) % 10) / 10, [x, y]);
   
   const symbols = {
     stethoscope: (
@@ -43,10 +48,6 @@ const MedicalSymbol = memo(({ type, delay = 0, x = 0, y = 0 }: { type: 'stethosc
       </svg>
     )
   };
-  
-  const floatDuration = 20 + Math.random() * 10;
-  const driftAmount = 40 + Math.random() * 40;
-  const rotationSpeed = 0.5 + Math.random() * 1;
   
   return (
     <div
@@ -564,8 +565,12 @@ export default function VisualHero() {
         const localT = (t - 0.58) / 0.05;
         y = centerY - Math.sin(localT * Math.PI) * 35 * (1 + Math.sin(time * 0.005) * 0.1);
       } else {
-        // Return to baseline with variation
-        y = centerY + Math.sin(t * 20) * 2 + Math.cos(t * 30) * 1;
+        // Return to baseline with smooth transition
+        const baselineT = (t - 0.63) / (1 - 0.63);
+        const tWaveEndY = centerY - 35;
+        // Use cubic easing for smooth transition from T-wave to baseline
+        const easedT = baselineT * baselineT * (3.0 - 2.0 * baselineT);
+        y = tWaveEndY * (1 - easedT) + centerY * easedT + Math.sin(t * 20) * 2 * easedT;
       }
       
       points.push({ x, y });
@@ -775,18 +780,22 @@ export default function VisualHero() {
       
       {/* Floating Medical Symbols */}
       <div className="absolute inset-0 pointer-events-none">
-        {[...Array(medicalSymbolCount)].map((_, i) => {
+        {useMemo(() => {
           const types: Array<'stethoscope' | 'pill' | 'syringe' | 'thermometer' | 'cross'> = ['stethoscope', 'pill', 'syringe', 'thermometer', 'cross'];
-          return (
-            <MedicalSymbol
-              key={`med-${i}`}
-              type={types[i % types.length]}
-              delay={i * 2}
-              x={Math.random() * windowWidth}
-              y={Math.random() * windowHeight}
-            />
-          );
-        })}
+          return [...Array(medicalSymbolCount)].map((_, i) => {
+            const x = Math.random() * windowWidth;
+            const y = Math.random() * windowHeight;
+            return (
+              <MedicalSymbol
+                key={`med-${i}`}
+                type={types[i % types.length]}
+                delay={i * 2}
+                x={x}
+                y={y}
+              />
+            );
+          });
+        }, [medicalSymbolCount, windowWidth, windowHeight])}
       </div>
 
       {/* Medical Monitor Frame */}
