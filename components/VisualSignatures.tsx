@@ -31,7 +31,7 @@ const VisualSignatures: React.FC = () => {
       subtitle: "The Rule Follower",
       color: "#4ECDC4", 
       signature: "M15,50 Q30,30 45,50 Q60,70 75,50 Q90,30 105,50 Q120,50 135,45",
-      funFact: "Always has a sunny smile ☀️"
+      funFact: "Thinks deeply about things that matter"
     },
     {
       name: "Gabrielle",
