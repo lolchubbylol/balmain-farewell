@@ -586,7 +586,7 @@ export default function VisualHero() {
     let progress = 0;
     let time = 0;
     const animationDuration = 5000;
-    const startTime = Date.now();
+    let startTime = Date.now();
     let beatCount = 0;
     
     // Heart rate variation
