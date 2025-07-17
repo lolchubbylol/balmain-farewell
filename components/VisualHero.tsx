@@ -502,19 +502,14 @@ export default function VisualHero() {
       const t = i / 1000;
       
       // Create realistic EKG pattern with smooth transitions
-      if (isMorphing) {
-        if (t > 0.7) {
-          // Morph into heart shape
-          const heartT = (t - 0.7) / 0.3;
-          const heartScale = 50;
-          const angle = heartT * Math.PI * 2;
-          const heartX = 16 * Math.pow(Math.sin(angle), 3);
-          const heartY = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
-          y = centerY + heartY * heartScale * (1 - Math.abs(heartT - 0.5) * 2);
-        } else {
-          // Keep at baseline until heart morph starts
-          y = centerY;
-        }
+      if (isMorphing && t > 0.7) {
+        // Morph into heart shape
+        const heartT = (t - 0.7) / 0.3;
+        const heartScale = 50;
+        const angle = heartT * Math.PI * 2;
+        const heartX = 16 * Math.pow(Math.sin(angle), 3);
+        const heartY = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
+        y = centerY + heartY * heartScale * (1 - Math.abs(heartT - 0.5) * 2);
       } else if (t < 0.4) {
         // Baseline with subtle variation
         y = centerY + Math.sin(t * 20) * 2 + Math.cos(t * 30) * 1;
@@ -561,17 +556,16 @@ export default function VisualHero() {
       } else if (t >= 0.58 && t < 0.63) {
         // T wave (smooth bump)
         const localT = (t - 0.58) / 0.05;
-        y = centerY - Math.sin(localT * Math.PI) * 35;
-      } else if (t >= 0.63 && t <= 1.0) {
-        // Return to baseline with smooth transition
-        const baselineT = Math.min((t - 0.63) / 0.1, 1); // Transition over 0.1 units
-        // Use smooth easing
-        const easedT = baselineT * baselineT * (3.0 - 2.0 * baselineT);
-        // Blend from where T-wave ends (centerY) to baseline with small variation
-        y = centerY + Math.sin(t * 20) * 2 * easedT;
+        y = centerY - Math.sin(localT * Math.PI) * 35 * (1 + Math.sin(time * 0.005) * 0.1);
       } else {
-        // Safety fallback - should not reach here
-        y = centerY;
+        // Return to baseline with smooth transition
+        const baselineT = (t - 0.63) / (1 - 0.63);
+        // T-wave ends at centerY when localT = 1 (sin(π) = 0)
+        const tWaveEndY = centerY;
+        // Use cubic easing for smooth transition
+        const easedT = baselineT * baselineT * (3.0 - 2.0 * baselineT);
+        // Start from T-wave end position and smoothly transition to baseline with variation
+        y = tWaveEndY + Math.sin(t * 20) * 2 * easedT;
       }
       
       points.push({ x, y });
