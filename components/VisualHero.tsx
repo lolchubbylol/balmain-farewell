@@ -3,11 +3,9 @@
 import { useEffect, useRef, useState, memo, useCallback } from 'react';
 import { motion, AnimatePresence, useSpring, useTransform, useMotionValue } from 'framer-motion';
 
-// Medical symbol component with 3D rotation
+// Medical symbol component with smooth continuous floating
 const MedicalSymbol = memo(({ type, delay = 0, x = 0, y = 0 }: { type: 'stethoscope' | 'pill' | 'syringe' | 'thermometer' | 'cross'; delay?: number; x?: number; y?: number }) => {
-  const motionValue = useMotionValue(0);
-  const springValue = useSpring(motionValue, { stiffness: 100, damping: 30 });
-  const rotateY = useTransform(springValue, [0, 1], [0, 360]);
+  const uniqueId = `med-${type}-${x}-${y}`;
   
   const symbols = {
     stethoscope: (
@@ -46,41 +44,25 @@ const MedicalSymbol = memo(({ type, delay = 0, x = 0, y = 0 }: { type: 'stethosc
     )
   };
   
+  const floatDuration = 20 + Math.random() * 10;
+  const driftAmount = 40 + Math.random() * 40;
+  const rotationSpeed = 0.5 + Math.random() * 1;
+  
   return (
-    <motion.div
-      className="absolute pointer-events-none"
-      initial={{ 
-        y,
-        x,
-        scale: 0,
-        opacity: 0
-      }}
-      animate={{ 
-        y: [y, y - 50, y - 40, y + 30, y + 20, y],
-        x: [x, x + 20, x + 15, x - 20, x - 15, x],
-        scale: [0, 1.2, 1.1, 1, 1, 1],
-        opacity: [0, 0.8, 1, 1, 0.8, 0],
-        rotateY: [0, 120, 240, 360]
-      }}
-      transition={{
-        duration: 15 + Math.random() * 5,
-        delay,
-        repeat: Infinity,
-        repeatDelay: Math.random() * 3,
-        ease: "easeInOut"
-      }}
+    <div
+      className="absolute pointer-events-none medical-symbol-float"
       style={{
-        perspective: 1000,
-        transformStyle: 'preserve-3d'
-      }}
+        left: `${x}px`,
+        top: `${y}px`,
+        animation: `medicalFloat ${floatDuration}s ${delay}s infinite ease-in-out`,
+        '--drift': `${driftAmount}px`,
+        '--rotation': `${rotationSpeed}`,
+      } as React.CSSProperties}
     >
-      <motion.div
-        style={{ rotateY }}
-        className="transform-gpu"
-      >
+      <div className="opacity-60">
         {symbols[type]}
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 });
 
@@ -370,6 +352,29 @@ const ParticleField = memo(() => {
           will-change: transform;
           transform: translate3d(0, 0, 0);
         }
+        
+        @keyframes medicalFloat {
+          0% {
+            transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+          }
+          25% {
+            transform: translate3d(calc(var(--drift) * 0.5), -30px, 0) rotate(calc(90deg * var(--rotation))) scale(1.1);
+          }
+          50% {
+            transform: translate3d(var(--drift), -50px, 0) rotate(calc(180deg * var(--rotation))) scale(1);
+          }
+          75% {
+            transform: translate3d(calc(var(--drift) * 0.5), -30px, 0) rotate(calc(270deg * var(--rotation))) scale(1.1);
+          }
+          100% {
+            transform: translate3d(0, 0, 0) rotate(calc(360deg * var(--rotation))) scale(1);
+          }
+        }
+        
+        .medical-symbol-float {
+          will-change: transform;
+          transform-origin: center;
+        }
       `}</style>
       {particles.map((particle) => (
         <div
@@ -545,11 +550,12 @@ export default function VisualHero() {
         const localT = (t - 0.49) / 0.01;
         y = centerY + Math.sin(localT * Math.PI) * 180 * Math.pow(localT, 0.3);
       } else if (t >= 0.5 && t < 0.52) {
-        // Return to baseline
+        // Return to baseline - smooth curve from S-wave
         const localT = (t - 0.5) / 0.02;
-        const baselineY = centerY + Math.sin(t * 20) * 2;
         const sWaveEndY = centerY + 180;
-        y = sWaveEndY + (baselineY - sWaveEndY) * Math.pow(localT, 2);
+        // Use cubic easing for smooth transition
+        const easedT = localT * localT * (3.0 - 2.0 * localT);
+        y = sWaveEndY * (1 - easedT) + centerY * easedT;
       } else if (t >= 0.52 && t < 0.58) {
         // ST segment
         y = centerY + Math.sin(t * 25) * 3 + Math.cos(t * 35) * 2;
