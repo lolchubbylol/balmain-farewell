@@ -547,13 +547,14 @@ export default function VisualHero() {
           }
         }
       } else if (t >= 0.46 && t < 0.48) {
-        // S wave (sharp dip) - widened from 0.01 to 0.02
+        // S wave (single smooth dip) - widened from 0.01 to 0.02
         const localT = (t - 0.46) / 0.02;
-        y = centerY + Math.sin(localT * Math.PI) * 180 * Math.pow(localT, 0.3);
+        // Single smooth drop using sine curve
+        y = centerY + Math.sin(localT * Math.PI) * 120;
       } else if (t >= 0.48 && t < 0.52) {
         // Return to baseline - smooth curve from S-wave - widened
         const localT = (t - 0.48) / 0.04;
-        const sWaveEndY = centerY + 180;
+        const sWaveEndY = centerY + 120; // Match new S wave amplitude
         // Use cubic easing for smooth transition
         const easedT = localT * localT * (3.0 - 2.0 * localT);
         y = sWaveEndY * (1 - easedT) + centerY * easedT;
