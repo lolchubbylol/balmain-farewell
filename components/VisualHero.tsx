@@ -883,11 +883,55 @@ export default function VisualHero() {
             </div>
           </div>
           
-          {/* Monitor Buttons */}
-          <div className="absolute bottom-2 right-2 flex gap-1">
-            {['MENU', 'ALARM', 'FREEZE'].map(label => (
-              <button key={label} className="px-2 py-1 bg-gray-800 text-gray-400 text-xs rounded hover:bg-gray-700 transition-colors">
-                {label}
+          {/* Monitor Buttons - Mobile Optimized */}
+          <div className="absolute bottom-2 right-2 flex gap-1 sm:gap-2">
+            {[
+              { label: 'Menu', icon: '☰', color: 'cyan', classes: 'text-cyan-400 hover:border-cyan-400/50 active:bg-cyan-900/50 focus:ring-cyan-400/50', glowClass: 'bg-cyan-400/20' },
+              { label: 'Save', icon: '💾', color: 'green', classes: 'text-green-400 hover:border-green-400/50 active:bg-green-900/50 focus:ring-green-400/50', glowClass: 'bg-green-400/20' },
+              { label: 'Review', icon: '📊', color: 'purple', classes: 'text-purple-400 hover:border-purple-400/50 active:bg-purple-900/50 focus:ring-purple-400/50', glowClass: 'bg-purple-400/20' }
+            ].map(({ label, icon, color, classes, glowClass }) => (
+              <button 
+                key={label} 
+                className={`
+                  relative min-h-[44px] min-w-[60px] px-3 py-2 sm:px-4 sm:py-2
+                  bg-gray-800/90 backdrop-blur-sm
+                  ${classes} text-xs sm:text-sm font-medium
+                  rounded-lg border border-gray-700
+                  transition-all duration-150 ease-out
+                  hover:bg-gray-700/90 hover:scale-105
+                  active:scale-95
+                  focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-gray-900
+                  touch-manipulation
+                  group
+                `}
+                style={{
+                  boxShadow: `0 0 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)`,
+                  willChange: 'transform',
+                  WebkitTapHighlightColor: 'transparent'
+                }}
+              >
+                {/* Glow effect on hover/active */}
+                <div 
+                  className={`absolute inset-0 rounded-lg ${glowClass} opacity-0 group-hover:opacity-100 group-active:opacity-50 transition-opacity duration-300 pointer-events-none`}
+                  style={{ filter: 'blur(8px)' }}
+                />
+                
+                {/* Button content */}
+                <div className="relative flex items-center gap-1 sm:gap-2">
+                  <span className="text-base sm:text-lg opacity-70 group-hover:opacity-100 transition-opacity">
+                    {icon}
+                  </span>
+                  <span className="hidden sm:inline">{label}</span>
+                  <span className="sm:hidden">{label.slice(0, 3)}</span>
+                </div>
+                
+                {/* Pulse indicator for Save button */}
+                {label === 'Save' && (
+                  <div className="absolute -top-1 -right-1 w-2 h-2">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  </div>
+                )}
               </button>
             ))}
           </div>
