@@ -194,18 +194,18 @@ const PulseRing = memo(({ x, y, delay = 0 }: { x: number; y: number; delay?: num
   <motion.div
     className="absolute pointer-events-none"
     style={{ left: x, top: y }}
-    initial={{ scale: 0, opacity: 1 }}
+    initial={{ scale: 0, opacity: 0.8 }}
     animate={{ 
-      scale: [0, 2, 3],
-      opacity: [1, 0.5, 0]
+      scale: [0, 1.5, 2],
+      opacity: [0.8, 0.3, 0]
     }}
     transition={{
-      duration: 2,
+      duration: 1.2,
       delay,
       ease: "easeOut"
     }}
   >
-    <div className="w-20 h-20 rounded-full border-2 border-hospital-mint" />
+    <div className="w-12 h-12 rounded-full border border-hospital-mint" />
   </motion.div>
 ));
 
@@ -544,8 +544,12 @@ export default function VisualHero() {
           if (rT > 0.8 && !isMorphing) {
             const currentX = x;
             const currentY = y;
-            if (Math.random() > 0.7) { // Don't trigger every time for performance
-              setPulsePositions(prev => [...prev, { x: currentX, y: currentY, id: Date.now() }]);
+            if (Math.random() > 0.95) { // Much less frequent
+              setPulsePositions(prev => {
+                // Limit to max 2 rings at a time
+                const filtered = prev.slice(-1);
+                return [...filtered, { x: currentX, y: currentY, id: Date.now() }];
+              });
               setShowPulse(true);
               setTimeout(() => setShowPulse(false), 500);
             }
