@@ -527,30 +527,34 @@ export default function VisualHero() {
       } else if (t >= 0.38 && t < 0.42) {
         // PR segment - widened
         y = centerY + Math.sin(t * 40) * 2;
-      } else if (t >= 0.42 && t < 0.44) {
-        // Q wave (small dip) - widened from 0.01 to 0.02
-        const localT = (t - 0.42) / 0.02;
-        y = centerY + Math.sin(localT * Math.PI) * 15;
-      } else if (t >= 0.44 && t < 0.46) {
-        // R wave (sharp peak) - widened from 0.01 to 0.02
-        const localT = (t - 0.44) / 0.02;
-        y = centerY - Math.sin(localT * Math.PI) * 150 * Math.pow(1 - localT, 0.3);
+      } else if (t >= 0.42 && t < 0.48) {
+        // QRS complex as a continuous wave
+        const localT = (t - 0.42) / 0.06; // Entire QRS duration
         
-        // Trigger pulse visualization at R wave peak
-        if (localT > 0.4 && localT < 0.6 && !isMorphing) {
-          const currentX = x;
-          const currentY = y;
-          if (Math.random() > 0.7) { // Don't trigger every time for performance
-            setPulsePositions(prev => [...prev, { x: currentX, y: currentY, id: Date.now() }]);
-            setShowPulse(true);
-            setTimeout(() => setShowPulse(false), 500);
+        if (localT < 0.15) {
+          // Q wave - small dip
+          const qT = localT / 0.15;
+          y = centerY + Math.sin(qT * Math.PI) * 15;
+        } else if (localT < 0.5) {
+          // R wave - sharp rise to peak
+          const rT = (localT - 0.15) / 0.35;
+          y = centerY + 15 - (15 + 150) * rT; // From +15 (Q end) to -150 (R peak)
+          
+          // Trigger pulse visualization at R wave peak
+          if (rT > 0.8 && !isMorphing) {
+            const currentX = x;
+            const currentY = y;
+            if (Math.random() > 0.7) { // Don't trigger every time for performance
+              setPulsePositions(prev => [...prev, { x: currentX, y: currentY, id: Date.now() }]);
+              setShowPulse(true);
+              setTimeout(() => setShowPulse(false), 500);
+            }
           }
+        } else {
+          // S wave - descent from peak to trough
+          const sT = (localT - 0.5) / 0.5;
+          y = centerY - 150 + (150 + 120) * sT; // From -150 (R peak) to +120 (S trough)
         }
-      } else if (t >= 0.46 && t < 0.48) {
-        // S wave (single smooth dip) - widened from 0.01 to 0.02
-        const localT = (t - 0.46) / 0.02;
-        // Single smooth drop using sine curve
-        y = centerY + Math.sin(localT * Math.PI) * 120;
       } else if (t >= 0.48 && t < 0.52) {
         // Return to baseline - smooth curve from S-wave - widened
         const localT = (t - 0.48) / 0.04;
