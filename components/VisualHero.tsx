@@ -517,23 +517,23 @@ export default function VisualHero() {
         const heartX = 16 * Math.pow(Math.sin(angle), 3);
         const heartY = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
         y = centerY + heartY * heartScale * (1 - Math.abs(heartT - 0.5) * 2);
-      } else if (t < 0.4) {
+      } else if (t < 0.3) {
         // Baseline with subtle variation
         y = centerY + Math.sin(t * 20) * 2 + Math.cos(t * 30) * 1;
-      } else if (t >= 0.4 && t < 0.45) {
-        // P wave (smooth bump)
-        const localT = (t - 0.4) / 0.05;
+      } else if (t >= 0.3 && t < 0.38) {
+        // P wave (smooth bump) - widened from 0.05 to 0.08
+        const localT = (t - 0.3) / 0.08;
         y = centerY - Math.sin(localT * Math.PI) * 30;
-      } else if (t >= 0.45 && t < 0.47) {
-        // PR segment
+      } else if (t >= 0.38 && t < 0.42) {
+        // PR segment - widened
         y = centerY + Math.sin(t * 40) * 2;
-      } else if (t >= 0.47 && t < 0.48) {
-        // Q wave (small dip)
-        const localT = (t - 0.47) / 0.01;
+      } else if (t >= 0.42 && t < 0.44) {
+        // Q wave (small dip) - widened from 0.01 to 0.02
+        const localT = (t - 0.42) / 0.02;
         y = centerY + Math.sin(localT * Math.PI) * 15;
-      } else if (t >= 0.48 && t < 0.49) {
-        // R wave (sharp peak)
-        const localT = (t - 0.48) / 0.01;
+      } else if (t >= 0.44 && t < 0.46) {
+        // R wave (sharp peak) - widened from 0.01 to 0.02
+        const localT = (t - 0.44) / 0.02;
         y = centerY - Math.sin(localT * Math.PI) * 150 * Math.pow(1 - localT, 0.3);
         
         // Trigger pulse visualization at R wave peak
@@ -546,23 +546,23 @@ export default function VisualHero() {
             setTimeout(() => setShowPulse(false), 500);
           }
         }
-      } else if (t >= 0.49 && t < 0.5) {
-        // S wave (sharp dip)
-        const localT = (t - 0.49) / 0.01;
+      } else if (t >= 0.46 && t < 0.48) {
+        // S wave (sharp dip) - widened from 0.01 to 0.02
+        const localT = (t - 0.46) / 0.02;
         y = centerY + Math.sin(localT * Math.PI) * 180 * Math.pow(localT, 0.3);
-      } else if (t >= 0.5 && t < 0.52) {
-        // Return to baseline - smooth curve from S-wave
-        const localT = (t - 0.5) / 0.02;
+      } else if (t >= 0.48 && t < 0.52) {
+        // Return to baseline - smooth curve from S-wave - widened
+        const localT = (t - 0.48) / 0.04;
         const sWaveEndY = centerY + 180;
         // Use cubic easing for smooth transition
         const easedT = localT * localT * (3.0 - 2.0 * localT);
         y = sWaveEndY * (1 - easedT) + centerY * easedT;
-      } else if (t >= 0.52 && t < 0.58) {
-        // ST segment
+      } else if (t >= 0.52 && t < 0.62) {
+        // ST segment - widened
         y = centerY + Math.sin(t * 25) * 3 + Math.cos(t * 35) * 2;
-      } else if (t >= 0.58 && t < 0.63) {
-        // T wave (smooth bump)
-        const localT = (t - 0.58) / 0.05;
+      } else if (t >= 0.62 && t < 0.70) {
+        // T wave (smooth bump) - widened from 0.05 to 0.08
+        const localT = (t - 0.62) / 0.08;
         const timeVariation = isMorphing ? 1 : (1 + Math.sin(time * 0.005) * 0.1);
         y = centerY - Math.sin(localT * Math.PI) * 35 * timeVariation;
       } else {
@@ -571,7 +571,7 @@ export default function VisualHero() {
           // When morphing, stay at baseline
           y = centerY;
         } else {
-          const baselineT = (t - 0.63) / (1 - 0.63);
+          const baselineT = (t - 0.70) / (1 - 0.70);
           // Use cubic easing for smooth transition
           const easedT = baselineT * baselineT * (3.0 - 2.0 * baselineT);
           // Start from centerY and add variation that fades in
