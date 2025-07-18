@@ -23,11 +23,11 @@ const OrbitalParticles = memo(() => {
     return Array.from({ length: particleCount }, (_, i) => {
       const layer = Math.floor(i / 5); // 2 layers max on mobile, 4 on desktop
       const indexInLayer = i % 5;
-      const baseRadius = 200 + layer * 120; // Increased spacing between layers
+      const baseRadius = 180 + layer * 100; // Good spacing between layers
       const angle = (indexInLayer / 5) * Math.PI * 2;
-      const speed = 0.3 + layer * 0.15 + (i % 3) * 0.05;
+      const speed = 0.3 + layer * 0.12 + (i % 3) * 0.05;
       const color = ['#4ECDC4', '#FF6B6B', '#00843D', '#FFCC00', '#FF0000'][i % 5];
-      const size = 4 + (layer % 2) * 2;
+      const size = 5 + (layer % 2) * 3;
       const pulsePhase = i * 0.3;
       const orbitTilt = layer * 15; // Different tilt for each layer
       
@@ -45,7 +45,7 @@ const OrbitalParticles = memo(() => {
           const z = Math.sin(currentAngle * 2) * 30;
           
           const scale = 1 + Math.sin(time * 2 + particle.pulsePhase) * 0.3;
-          const opacity = 0.2 + Math.sin(time * 3 + particle.pulsePhase) * 0.15 + (particle.layer * 0.05);
+          const opacity = 0.35 + Math.sin(time * 3 + particle.pulsePhase) * 0.2 + (particle.layer * 0.08);
           
           return (
             <div
@@ -70,8 +70,8 @@ const OrbitalParticles = memo(() => {
           <div 
             className="relative"
             style={{
-              transform: `rotate(${time * 20}deg) scale(${1 + Math.sin(time * 2) * 0.1})`,
-              opacity: 0.6,
+              transform: `rotate(${time * 20}deg) scale(${1 + Math.sin(time * 2) * 0.15})`,
+              opacity: 0.8,
             }}
           >
             <div className="absolute w-16 h-4 bg-red-500 rounded-sm" style={{ top: '-2px', left: '-32px' }} />
@@ -544,10 +544,10 @@ export default function VisualHero() {
           if (rT > 0.8 && !isMorphing) {
             const currentX = x;
             const currentY = y;
-            if (Math.random() > 0.95) { // Much less frequent
+            if (Math.random() > 0.85) { // More frequent but not too much
               setPulsePositions(prev => {
-                // Limit to max 2 rings at a time
-                const filtered = prev.slice(-1);
+                // Limit to max 4 rings at a time
+                const filtered = prev.slice(-3);
                 return [...filtered, { x: currentX, y: currentY, id: Date.now() }];
               });
               setShowPulse(true);
