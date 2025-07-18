@@ -53,8 +53,8 @@ const Firework = memo(({ x, y, onComplete }: {
 }) => {
   const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#DDA0DD', '#FF69B4'];
   const color = colors[Math.floor(Math.random() * colors.length)];
-  const particleCount = isMobile ? 12 : 30 + Math.floor(Math.random() * 20);
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const particleCount = isMobile ? 12 : 30 + Math.floor(Math.random() * 20);
   const explosionRadius = isMobile ? 50 : 100;
   const actualParticleCount = isMobile ? Math.min(particleCount, 12) : particleCount;
   
