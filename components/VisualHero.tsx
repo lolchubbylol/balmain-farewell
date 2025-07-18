@@ -21,11 +21,11 @@ const OrbitalParticles = memo(() => {
   
   const particles = useMemo(() => {
     return Array.from({ length: particleCount }, (_, i) => {
-      const layer = Math.floor(i / 5); // 4 layers
+      const layer = Math.floor(i / 5); // 2 layers max on mobile, 4 on desktop
       const indexInLayer = i % 5;
-      const baseRadius = 200 + layer * 80;
+      const baseRadius = 200 + layer * 120; // Increased spacing between layers
       const angle = (indexInLayer / 5) * Math.PI * 2;
-      const speed = 0.3 + layer * 0.1 + (i % 3) * 0.05;
+      const speed = 0.3 + layer * 0.15 + (i % 3) * 0.05;
       const color = ['#4ECDC4', '#FF6B6B', '#00843D', '#FFCC00', '#FF0000'][i % 5];
       const size = 4 + (layer % 2) * 2;
       const pulsePhase = i * 0.3;
@@ -45,7 +45,7 @@ const OrbitalParticles = memo(() => {
           const z = Math.sin(currentAngle * 2) * 30;
           
           const scale = 1 + Math.sin(time * 2 + particle.pulsePhase) * 0.3;
-          const opacity = 0.3 + Math.sin(time * 3 + particle.pulsePhase) * 0.2 + (particle.layer * 0.1);
+          const opacity = 0.2 + Math.sin(time * 3 + particle.pulsePhase) * 0.15 + (particle.layer * 0.05);
           
           return (
             <div
