@@ -113,6 +113,7 @@ const StudentCard = memo(({ student, index, animationStarted }: {
   const ref = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
   const inView = useInView(ref, { once: true, amount: 0.3 });
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
   
   // Mouse tracking for 3D tilt effect
   const mouseX = useMotionValue(0);
