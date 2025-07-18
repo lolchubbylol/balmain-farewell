@@ -134,18 +134,20 @@ const StudentCard = memo(({ student, index, animationStarted }: {
     }
   }, [inView]);
   
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (isMobile) return; // Skip expensive calculations on mobile
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
     mouseX.set(x);
     mouseY.set(y);
-  };
+  }, [isMobile, mouseX, mouseY]);
   
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
+    if (isMobile) return;
     mouseX.set(0);
     mouseY.set(0);
-  };
+  }, [isMobile, mouseX, mouseY]);
   
   // Staggered entrance with 3D rotation
   const entranceVariants = {
@@ -461,6 +463,8 @@ const VisualSignatures: React.FC = () => {
           animation-fill-mode: both;
           will-change: transform;
           transform: translate3d(0, 0, 0);
+          backface-visibility: hidden;
+          perspective: 1000px;
           opacity: 0;
         }
         

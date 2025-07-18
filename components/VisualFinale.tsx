@@ -24,6 +24,8 @@ const FireworkParticle = memo(({ x, y, color, delay = 0 }: {
         top: y,
         backgroundColor: color,
         boxShadow: `0 0 10px ${color}`,
+        willChange: 'transform',
+        backfaceVisibility: 'hidden',
       }}
       initial={{ scale: 0, opacity: 1 }}
       animate={{
@@ -51,9 +53,10 @@ const Firework = memo(({ x, y, onComplete }: {
 }) => {
   const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#DDA0DD', '#FF69B4'];
   const color = colors[Math.floor(Math.random() * colors.length)];
-  const particleCount = 30 + Math.floor(Math.random() * 20);
+  const particleCount = isMobile ? 12 : 30 + Math.floor(Math.random() * 20);
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const explosionRadius = isMobile ? 50 : 100;
+  const actualParticleCount = isMobile ? Math.min(particleCount, 12) : particleCount;
   
   useEffect(() => {
     if (onComplete) {
@@ -79,7 +82,7 @@ const Firework = memo(({ x, y, onComplete }: {
       
       {/* Explosion */}
       <div className="absolute" style={{ left: x, top: y }}>
-        {Array.from({ length: particleCount }).map((_, i) => (
+        {Array.from({ length: actualParticleCount }).map((_, i) => (
           <FireworkParticle
             key={i}
             x={0}
@@ -113,6 +116,7 @@ Firework.displayName = 'Firework';
 const AnimatedOperaHouse = memo(() => {
   const [isHovered, setIsHovered] = useState(false);
   const [spotlightIntensity, setSpotlightIntensity] = useState(0.3);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -144,10 +148,10 @@ const AnimatedOperaHouse = memo(() => {
             <stop offset="100%" stopColor="#191970" stopOpacity={spotlightIntensity * 0.5} />
           </linearGradient>
           
-          {/* Water reflection filter */}
+          {/* Water reflection filter - optimized for mobile */}
           <filter id="water">
-            <feTurbulence baseFrequency="0.02" numOctaves="3" result="turbulence" />
-            <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="10" />
+            <feTurbulence baseFrequency="0.02" numOctaves={isMobile ? "1" : "3"} result="turbulence" />
+            <feDisplacementMap in="SourceGraphic" in2="turbulence" scale={isMobile ? "5" : "10"} />
           </filter>
           
           {/* Spotlight effect */}
@@ -256,7 +260,7 @@ const AuroraAustralis = memo(() => {
           </linearGradient>
           
           <filter id="auroraBlur">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation={isMobile ? "5" : "10"} />
           </filter>
         </defs>
         
@@ -332,7 +336,9 @@ const Confetti3D = memo(({ x, delay, color }: { x: number; delay: number; color:
         y,
         rotateX,
         rotateY,
-        transformStyle: 'preserve-3d',
+        transformStyle: isMobile ? 'flat' : 'preserve-3d',
+        willChange: 'transform',
+        backfaceVisibility: 'hidden',
       }}
       initial={{ y: -50 }}
       animate={{
