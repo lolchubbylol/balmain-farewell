@@ -6,7 +6,8 @@ import { motion, AnimatePresence, useSpring, useTransform, useMotionValue } from
 // Orbital particle system for medical theme visualization
 const OrbitalParticles = memo(() => {
   const [time, setTime] = useState(0);
-  const particleCount = 20;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const particleCount = isMobile ? 10 : 20;
   
   useEffect(() => {
     let animationId: number;
@@ -234,7 +235,7 @@ const SoundWaveBars = memo(({ isActive }: { isActive: boolean }) => (
 SoundWaveBars.displayName = 'SoundWaveBars';
 
 // Memoized eucalyptus leaf component with CSS animation fallback for mobile
-const EucalyptusLeaf = memo(({ delay = 0, x = 0 }: { delay?: number; x?: number }) => {
+const EucalyptusLeaf = memo(({ delay = 0, x = 0, index = 0 }: { delay?: number; x?: number; index?: number }) => {
   const leafPath = "M20 5C12 8 5 18 5 30C5 42 12 52 20 55C28 52 35 42 35 30C35 18 28 8 20 5Z";
   const veinPaths = [
     "M20 10L20 50",
@@ -247,6 +248,11 @@ const EucalyptusLeaf = memo(({ delay = 0, x = 0 }: { delay?: number; x?: number 
   // Use CSS animation on mobile for better performance
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
   
+  // Use stable values based on index instead of Math.random()
+  const xDrift = ((index * 137) % 300) - 150; // Deterministic pseudo-random
+  const rotation = 360 + ((index * 213) % 360);
+  const duration = 20 + ((index * 97) % 10);
+  
   if (isMobile) {
     return (
       <div 
@@ -255,22 +261,23 @@ const EucalyptusLeaf = memo(({ delay = 0, x = 0 }: { delay?: number; x?: number 
           left: `${x}px`,
           top: '-100px',
           animationDelay: `${delay}s`,
-          '--x-drift': `${(Math.random() - 0.5) * 300}px`,
-          '--rotation': `${360 + Math.random() * 360}deg`,
-          '--duration': `${20 + Math.random() * 10}s`,
-          willChange: 'transform, opacity',
-          transform: 'translate3d(0, 0, 0)'
+          '--x-drift': `${xDrift}px`,
+          '--rotation': `${rotation}deg`,
+          '--duration': `${duration}s`,
+          willChange: 'transform',
+          transform: 'translate3d(0, 0, 0)',
+          contain: 'layout style paint'
         } as React.CSSProperties}
       >
         <svg width="40" height="60" viewBox="0 0 40 60" fill="none">
           <defs>
-            <linearGradient id={`leaf-${delay}`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id={`leaf-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#7FB069" stopOpacity="0.6"/>
               <stop offset="50%" stopColor="#5A8A4C" stopOpacity="0.8"/>
               <stop offset="100%" stopColor="#4A7A3C" stopOpacity="0.6"/>
             </linearGradient>
           </defs>
-          <path d={leafPath} fill={`url(#leaf-${delay})`}/>
+          <path d={leafPath} fill={`url(#leaf-${index})`}/>
           {veinPaths.map((path, i) => (
             <path key={i} d={path} stroke="#4A7A3C" strokeWidth="0.5" opacity="0.5"/>
           ))}
@@ -290,12 +297,12 @@ const EucalyptusLeaf = memo(({ delay = 0, x = 0 }: { delay?: number; x?: number 
       }}
       animate={{ 
         y: window.innerHeight + 100,
-        x: x + (Math.random() - 0.5) * 200,
-        rotate: 360 * (Math.random() > 0.5 ? 1 : -1),
+        x: x + xDrift,
+        rotate: rotation - 360,
         opacity: [0, 0.8, 0.8, 0]
       }}
       transition={{
-        duration: 15 + Math.random() * 10,
+        duration: duration,
         delay: delay,
         repeat: Infinity,
         ease: "linear"
@@ -307,13 +314,13 @@ const EucalyptusLeaf = memo(({ delay = 0, x = 0 }: { delay?: number; x?: number 
     >
       <svg width="40" height="60" viewBox="0 0 40 60" fill="none">
         <defs>
-          <linearGradient id={`leaf-${delay}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id={`leaf-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#7FB069" stopOpacity="0.6"/>
             <stop offset="50%" stopColor="#5A8A4C" stopOpacity="0.8"/>
             <stop offset="100%" stopColor="#4A7A3C" stopOpacity="0.6"/>
           </linearGradient>
         </defs>
-        <path d={leafPath} fill={`url(#leaf-${delay})`}/>
+        <path d={leafPath} fill={`url(#leaf-${index})`}/>
         {veinPaths.map((path, i) => (
           <path key={i} d={path} stroke="#4A7A3C" strokeWidth="0.5" opacity="0.5"/>
         ))}
@@ -586,8 +593,9 @@ export default function VisualHero() {
     const ctx = canvas.getContext('2d', { alpha: false }); // Disable alpha for better performance
     if (!ctx) return;
 
-    canvas.width = windowWidth;
-    canvas.height = 400;
+    const isMobileCanvas = windowWidth <= 768;
+    canvas.width = isMobileCanvas ? windowWidth * 0.9 : windowWidth;
+    canvas.height = isMobileCanvas ? 250 : 400;
 
     let progress = 0;
     let time = 0;
@@ -701,7 +709,7 @@ export default function VisualHero() {
   }, [createEKGPath, windowWidth, isMorphing]);
 
   const isMobile = windowWidth <= 768;
-  const leafCount = isMobile ? 8 : 20; // Reduce leaves on mobile
+  const leafCount = isMobile ? 5 : 20; // Further reduce leaves on mobile for performance
   
   // Get current date/time
   const currentDate = new Date();
@@ -731,6 +739,9 @@ export default function VisualHero() {
         .floating-leaf {
           animation: floating-leaf var(--duration, 20s) cubic-bezier(0.4, 0, 0.6, 1) infinite;
           animation-fill-mode: both;
+          backface-visibility: hidden;
+          perspective: 1000px;
+          transform-style: preserve-3d;
         }
         
         @media (max-width: 768px) {
@@ -768,13 +779,19 @@ export default function VisualHero() {
 
       {/* Floating Eucalyptus Leaves */}
       <div className="absolute inset-0 pointer-events-none">
-        {[...Array(leafCount)].map((_, i) => (
-          <EucalyptusLeaf 
-            key={i} 
-            delay={i * 1.5} 
-            x={Math.random() * windowWidth}
-          />
-        ))}
+        {useMemo(() => 
+          [...Array(leafCount)].map((_, i) => {
+            const x = (i * 137 * windowWidth / leafCount) % windowWidth; // Stable positioning
+            return (
+              <EucalyptusLeaf 
+                key={i} 
+                index={i}
+                delay={i * 1.5} 
+                x={x}
+              />
+            );
+          }), [leafCount, windowWidth]
+        )}
       </div>
       
       {/* Orbital Medical Particle System */}

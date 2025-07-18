@@ -250,7 +250,7 @@ const StudentCard = memo(({ student, index, animationStarted }: {
         >
           {/* Enhanced paper texture lines with animation */}
           <div className="absolute inset-0 opacity-10 pointer-events-none">
-            {[...Array(8)].map((_, i) => (
+            {[...Array(isMobile ? 4 : 8)].map((_, i) => (
               <motion.div
                 key={i}
                 className="h-px bg-gray-600"
