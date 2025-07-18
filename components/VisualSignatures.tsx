@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, memo, useMemo, useRef } from 'react';
+import React, { useEffect, useState, memo, useMemo, useRef, useCallback } from 'react';
 import { motion, useMotionValue, useTransform, useSpring, useInView } from 'framer-motion';
 
 // Memoized signature path component with enhanced effects
