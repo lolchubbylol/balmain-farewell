@@ -464,7 +464,7 @@ export default function VisualHero() {
   const [showPulse, setShowPulse] = useState(false);
   const [heartRate, setHeartRate] = useState(72);
   const [isMorphing, setIsMorphing] = useState(false);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | undefined>(undefined);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1920);
   const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 1080);
   const [pulsePositions, setPulsePositions] = useState<Array<{x: number, y: number, id: number}>>([]);
